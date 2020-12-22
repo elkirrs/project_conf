@@ -12,7 +12,7 @@ RUN apk update && apk add --no-cache zip curl unzip libgd \
     imagemagick imagemagick-dev libmemcached-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd \
-    && pecl install amqp && docker-php-ext-enable amqp
+    && pecl install amqp && docker-php-ext-enable amqp \
     && pecl install xdebug && docker-php-ext-enable xdebug \
     && pecl install memcached && docker-php-ext-enable memcached \
     && (yes | pecl install imagick-3.4.3) && docker-php-ext-enable imagick
