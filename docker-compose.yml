@@ -1,0 +1,98 @@
+version: '3.8'
+
+services:
+
+  nginx:
+    build:
+      context: ./
+      dockerfile: config/docker/nginx/Dockerfile
+    container_name: ${CONTAINER_SERVER}
+    ports:
+      - ${NGINX_PORT_HTTP}:80
+      - ${NGINX_PORT_HTTPS}:443
+    restart: always
+    environment:
+      TZ: ${TZ}
+    volumes:
+      - ./config/nginx/conf.d:/etc/nginx/conf.d
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ${PATH_PROJECT}:/var/www
+      - ./logs/nginx:/var/log/nginx
+    networks:
+      - project
+
+  php:
+    build:
+      context: ./
+      dockerfile: config/docker/php/Dockerfile
+    environment:
+      TZ: ${TZ}
+# XDEBUG
+      XDEBUG_CONFIG: "remote_host=192.168.220.1 remote_enable=1 remote_autostart=off remote_port=9008"
+      PHP_IDE_CONFIG: "serverName=localhost"
+    ports:
+      - ${PHP_PORT}:9000
+      - ${SUPERVISOR_PORT}:9001
+    container_name: ${CONTAINER_PHP}
+    restart: always
+    volumes:
+      - ./config/php/custom-php.ini:/usr/local/etc/php/conf.d/custom-php.ini
+      - ${PATH_PROJECT}:/var/www
+      - ./config/supervisor:/etc/supervisor
+      - ./config/supervisor/conf.d:/etc/supervisor/conf.d
+      - ./logs/supervisor:/var/log/supervisor
+      - ./scripts:/var/scripts
+    networks:
+      - project
+
+  db:
+    image: postgres:alpine
+    container_name: ${CONTAINER_DB}
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - ${DB_PORT}:5432
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    networks:
+      - project
+
+  adminer:
+    container_name: ${CONTAINER_ADMINER}
+    restart: always
+    image: adminer
+    ports:
+      - ${ADMINER_PORT}:8080
+    networks:
+      - project
+
+  rabbitmq:
+    container_name: ${CONTAINER_RMQ}
+    restart: always
+    build:
+      context: ./
+      dockerfile: config/docker/rabbitmq/Dockerfile
+    environment:
+      TZ: ${TZ}
+      RABBITMQ_DEFAULT_USER: ${RMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RMQ_PASS}
+      RABBITMQ_NODENAME: ${RMQ_NODENAME}
+#      RABBITMQ_ERLANG_COOKIE: ${RMQ_COOKIE}
+      RABBITMQ_LOGS: /var/log/rabbitmq/log/rabbitmq.log
+    ports:
+      - ${RMQ_PORT_CONNECT}:5672
+      - ${RMQ_PORT_URI}:15672
+    volumes:
+      - ./logs/rabbitmq:/var/log/rabbitmq
+      - ./data/rabbitmq:/var/lib/rabbitmq
+#      - ./config/rabbitmq/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
+    networks:
+      - project
+
+networks:
+  project:
+    driver: bridge
