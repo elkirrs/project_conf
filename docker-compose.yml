@@ -93,6 +93,18 @@ services:
     networks:
       - project
 
+  mail:
+    container_name: ${CONTAINER_MAIL}
+    restart: always
+    build:
+      context: ./
+      dockerfile: config/docker/mail-Dockerfile
+    ports:
+    - ${MAIL_PORT_SMTP}:1025
+    - ${MAIL_PORT_HTTP}:8025
+    networks:
+      - project
+
 networks:
   project:
     driver: bridge

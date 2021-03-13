@@ -35,13 +35,13 @@ show: #show docker's containers
 	@sudo docker ps
 
 connect_php: #Connect to APP container
-	@docker-compose exec $(CONTAINER_PHP) $(SHELL)
+	@docker exec -it $(CONTAINER_PHP) $(SHELL)
 
 connect_db: #Connect to DB container
-	@docker-compose exec $(CONTAINER_DB) $(SHELL)
+	@docker exec -it $(CONTAINER_DB) $(SHELL)
 
 connect_rmq: #Connect to rabbitmq container
-	@docker-compose exec $(CONTAINER_RMQ) $(SHELL)
+	@docker exec -it $(CONTAINER_RMQ) $(SHELL)
 
 connect_server: #Connect to container_server container
-	@docker-compose exec $(CONTAINER_SERVER) $(SHELL)
+	@docker exec -it $(CONTAINER_SERVER) $(SHELL)
