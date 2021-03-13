@@ -1,7 +1,8 @@
-# path project
+# Path project
 PATH_PROJECT=./www
 TZ=Europe/Minsk
 USER=www-data
+SHELL=bash
 
 # Ports
 NGINX_PORT_HTTP=80
@@ -11,11 +12,12 @@ ADMINER_PORT=8080
 DB_PORT=5432
 SUPERVISOR_PORT=9001
 
-# Data connect
+# DataBase connect
 DB_USER=root
 DB_PASS=password
 DB_NAME=project
 
+# RabbitMQ Queue
 RMQ_USER=admin
 RMQ_PASS=password
 RMQ_PORT_URI=15672

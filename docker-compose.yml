@@ -5,7 +5,7 @@ services:
   nginx:
     build:
       context: ./
-      dockerfile: config/docker/nginx/Dockerfile
+      dockerfile: config/docker/nginx-Dockerfile
     container_name: ${CONTAINER_SERVER}
     ports:
       - ${NGINX_PORT_HTTP}:80
@@ -24,7 +24,7 @@ services:
   php:
     build:
       context: ./
-      dockerfile: config/docker/php/Dockerfile
+      dockerfile: config/docker/php-Dockerfile
     environment:
       TZ: ${TZ}
 # XDEBUG
@@ -75,7 +75,7 @@ services:
     restart: always
     build:
       context: ./
-      dockerfile: config/docker/rabbitmq/Dockerfile
+      dockerfile: config/docker/rabbitmq-Dockerfile
     environment:
       TZ: ${TZ}
       RABBITMQ_DEFAULT_USER: ${RMQ_USER}
