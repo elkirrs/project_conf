@@ -29,7 +29,7 @@ services:
     restart: always
     environment:
       TZ: ${TZ}
-# XDEBUG
+      #XDEBUG
       XDEBUG_CONFIG: "remote_host=192.168.220.1 remote_enable=1 remote_autostart=off remote_port=9008"
       PHP_IDE_CONFIG: "serverName=localhost"
     ports:
@@ -83,7 +83,7 @@ services:
       RABBITMQ_DEFAULT_USER: ${RMQ_USER}
       RABBITMQ_DEFAULT_PASS: ${RMQ_PASS}
       RABBITMQ_NODENAME: ${RMQ_NODENAME}
-#      RABBITMQ_ERLANG_COOKIE: ${RMQ_COOKIE}
+      #RABBITMQ_ERLANG_COOKIE: ${RMQ_COOKIE}
       RABBITMQ_LOGS: /var/log/rabbitmq/log/rabbitmq.log
     ports:
       - ${RMQ_PORT_CONNECT}:5672
@@ -91,7 +91,7 @@ services:
     volumes:
       - ./logs/rabbitmq:/var/log/rabbitmq
       - ./data/rabbitmq:/var/lib/rabbitmq
-#      - ./config/rabbitmq/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
+    #- ./config/rabbitmq/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
     networks:
       - project
 
@@ -102,8 +102,8 @@ services:
     container_name: ${CONTAINER_MAIL}
     restart: always
     ports:
-    - ${MAIL_PORT_SMTP}:1025
-    - ${MAIL_PORT_HTTP}:8025
+      - ${MAIL_PORT_SMTP}:1025
+      - ${MAIL_PORT_HTTP}:8025
     networks:
       - project
 
