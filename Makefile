@@ -5,6 +5,9 @@ include .env
 laravel_install: #Create new Laravel project
 	@docker-compose exec $(CONTAINER_PHP) composer create-project --prefer-dist laravel/laravel .
 
+clear: #Clear cache and config
+    @docker-compose exec $(CONTAINER_PHP) php artisan config:clear
+
 key: #generate APP key
 	@docker-compose exec $(CONTAINER_PHP) php artisan key:generate
 

@@ -4,7 +4,7 @@ FROM php:7.4-fpm-alpine
 WORKDIR /var/www
 
 # Install dependencies
-RUN apk update && apk add --no-cache zip curl unzip libgd \
+RUN apk --update add --no-cache htop zip curl unzip libgd \
     icu-dev libzip-dev libxml2-dev bzip2-dev \
     libjpeg-turbo libmcrypt-dev readline-dev freetype libpng $PHPIZE_DEPS \
     freetype-dev libpng-dev libjpeg-turbo-dev make oniguruma-dev \
@@ -14,7 +14,7 @@ RUN apk update && apk add --no-cache zip curl unzip libgd \
     && docker-php-ext-install -j$(nproc) gd \
     && pecl install amqp && docker-php-ext-enable amqp \
     && pecl install xdebug && docker-php-ext-enable xdebug \
-    && pecl install memcached && docker-php-ext-enable memcached \
+    && pecl install redis && docker-php-ext-enable redis \
     && (yes | pecl install imagick-3.4.3) && docker-php-ext-enable imagick
 
 # Clear cache

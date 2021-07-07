@@ -1,11 +1,11 @@
-version: '3.8'
+version: '4'
 
 services:
 
   nginx:
     build:
       context: ./
-      dockerfile: config/docker/nginx-Dockerfile
+      dockerfile: config/docker/nginx.Dockerfile
     container_name: ${CONTAINER_SERVER}
     restart: always
     environment:
@@ -24,19 +24,17 @@ services:
   php:
     build:
       context: ./
-      dockerfile: config/docker/php-Dockerfile
+      dockerfile: config/docker/php.Dockerfile
     container_name: ${CONTAINER_PHP}
     restart: always
     environment:
       TZ: ${TZ}
-      #XDEBUG
-      XDEBUG_CONFIG: "remote_host=192.168.220.1 remote_enable=1 remote_autostart=off remote_port=9008"
-      PHP_IDE_CONFIG: "serverName=localhost"
+      XDEBUG_SESSION: 'docker-server'
     ports:
       - ${PHP_PORT}:9000
       - ${SUPERVISOR_PORT}:9001
     volumes:
-      - ./config/php/custom-php.ini:/usr/local/etc/php/conf.d/custom-php.ini
+      - ./config/php/:/usr/local/etc/php/conf.d/custom-php.ini
       - ${PATH_PROJECT}:/var/www
       - ./config/supervisor:/etc/supervisor
       - ./config/supervisor/conf.d:/etc/supervisor/conf.d
@@ -48,7 +46,7 @@ services:
   db:
     build:
       context: ./
-      dockerfile: config/docker/db-Dockerfile
+      dockerfile: config/docker/db.Dockerfile
     container_name: ${CONTAINER_DB}
     restart: always
     environment:
@@ -75,7 +73,7 @@ services:
   rabbitmq:
     build:
       context: ./
-      dockerfile: config/docker/rabbitmq-Dockerfile
+      dockerfile: config/docker/rabbitmq.Dockerfile
     container_name: ${CONTAINER_RMQ}
     restart: always
     environment:
@@ -98,12 +96,40 @@ services:
   mail:
     build:
       context: ./
-      dockerfile: config/docker/mail-Dockerfile
+      dockerfile: config/docker/mail.Dockerfile
     container_name: ${CONTAINER_MAIL}
     restart: always
     ports:
       - ${MAIL_PORT_SMTP}:1025
       - ${MAIL_PORT_HTTP}:8025
+    networks:
+      - project
+
+#  golang:
+#    build:
+#      context: ./
+#      dockerfile: config/docker/go.Dockerfile
+#    ports:
+#      - 5462:5462
+#      - 5463:5463
+#    command: "./golang"
+#    environment:
+#      - ENV=docker
+#    networks:
+#      - project
+
+  redis:
+    build:
+      context: ./
+      dockerfile: config/docker/redis.Dockerfile
+    container_name: ${CONTAINER_REDIS}
+    restart: always
+    ports:
+      - ${RADIS_PORT}:6379
+    volumes:
+      - ./config/redis:/usr/local/etc/redis
+      - ./logs/redis:/var/log
+      - ./data/redis:/data
     networks:
       - project
 

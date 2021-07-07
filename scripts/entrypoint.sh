@@ -5,8 +5,8 @@ composer self-update
 chmod 777 -Rf /var/www/storage
 chmod 777 -Rf /var/logs
 
-php /var/www/artisan config:cache
-php /var/www/artisan config:clear
+php /var/www/artisan config:cache || true
+php /var/www/artisan config:clear || true
 #php /var/www/sms-by/laravel/artisan migrate
 
 php-fpm -D
