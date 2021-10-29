@@ -29,7 +29,6 @@ services:
     restart: always
     environment:
       TZ: ${TZ}
-      XDEBUG_SESSION: 'docker-server'
     ports:
       - ${PHP_PORT}:9000
       - ${SUPERVISOR_PORT}:9001
@@ -80,7 +79,7 @@ services:
       TZ: ${TZ}
       RABBITMQ_DEFAULT_USER: ${RMQ_USER}
       RABBITMQ_DEFAULT_PASS: ${RMQ_PASS}
-      RABBITMQ_NODENAME: ${RMQ_NODENAME}
+      RABBITMQ_NODENAME: ${RMQ_NODE_NAME}
       #RABBITMQ_ERLANG_COOKIE: ${RMQ_COOKIE}
       RABBITMQ_LOGS: /var/log/rabbitmq/log/rabbitmq.log
     ports:
@@ -105,18 +104,19 @@ services:
     networks:
       - project
 
-#  golang:
-#    build:
-#      context: ./
-#      dockerfile: config/docker/go.Dockerfile
-#    ports:
-#      - 5462:5462
-#      - 5463:5463
-#    command: "./golang"
-#    environment:
-#      - ENV=docker
-#    networks:
-#      - project
+  golang:
+    build:
+      context: ./
+      dockerfile: config/docker/go.Dockerfile
+    container_name: ${CONTAINER_GOLANG}
+    restart: always
+    ports:
+      - ${GOLANG_PORT}:5462
+    volumes:
+      - ${PATH_GOLANG_PROJECT}:/var/golang
+      - ./logs/golang:/var/log
+    networks:
+      - project
 
   redis:
     build:

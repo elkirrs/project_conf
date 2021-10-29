@@ -46,5 +46,8 @@ connect_db: #Connect to DB container
 connect_rmq: #Connect to rabbitmq container
 	@docker exec -it $(CONTAINER_RMQ) $(SHELL)
 
-connect_server: #Connect to container_server container
+connect_server: #Connect to container server container
 	@docker exec -it $(CONTAINER_SERVER) $(SHELL)
+
+connect_go: #Connect to container golang container
+	@docker exec -it $(CONTAINER_GOLANG) $(SHELL)

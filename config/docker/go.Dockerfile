@@ -1,20 +1,13 @@
-FROM golang:alpine AS golang
-ENV NAME "golang"
-WORKDIR /var/${NAME}
-COPY ./go/go.mod .
-COPY ./go/go.sum .
+FROM golang:alpine
+
+RUN apk --update add --no-cache nano
+
+WORKDIR /var/golang
+
+COPY /golang /var/golang
 #RUN go mod download
 
-FROM golang AS build
-ENV NAME "golang"
-WORKDIR /var/${NAME}
-COPY ./go .
-RUN GO111MODULE=auto
-#RUN go build -o var/golang -ldflags '-v -w -s' ./cmd/golang
-RUN ["sh",  "-c", "go build -o var/golang -ldflags '-v -w -s' ./cmd/golang"]
+RUN mkdir -p /var/scripts
+COPY /scripts/golang/go.sh /var/scripts/go.sh
 
-FROM alpine
-ENV NAME "golang"
-WORKDIR /var/${NAME}
-COPY --from=build /var/${NAME} ./${NAME}
-CMD ./${NAME}
+ENTRYPOINT ["sh", "/var/scripts/go.sh"]
