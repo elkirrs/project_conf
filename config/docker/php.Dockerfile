@@ -9,7 +9,7 @@ RUN apk --update add --no-cache htop zip curl unzip libgd \
     libjpeg-turbo libmcrypt-dev readline-dev freetype libpng $PHPIZE_DEPS \
     freetype-dev libpng-dev libjpeg-turbo-dev make oniguruma-dev \
     g++ supervisor nano libpq postgresql-dev rabbitmq-c rabbitmq-c-dev \
-    imagemagick imagemagick-dev libmemcached-dev \
+    imagemagick imagemagick-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd \
     && pecl install amqp && docker-php-ext-enable amqp \
@@ -29,13 +29,9 @@ RUN docker-php-ext-install bz2 ctype json intl iconv \
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Copy existing application directory contents
-COPY . /var/www
-
 RUN mkdir -p /var/scripts
 # Copy existing application directory permissions
 COPY /config/supervisor/supervisord.conf /etc/supervisor/supervisord.conf
-COPY /scripts/php /var/scripts
 
 # Expose port 9000 and start php-fpm server
 EXPOSE 9000

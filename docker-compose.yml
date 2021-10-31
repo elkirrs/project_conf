@@ -38,7 +38,7 @@ services:
       - ./config/supervisor:/etc/supervisor
       - ./config/supervisor/conf.d:/etc/supervisor/conf.d
       - ./logs/supervisor:/var/log/supervisor
-      - ./scripts:/var/scripts
+      - ./scripts/php:/var/scripts
     networks:
       - project
 
@@ -110,6 +110,7 @@ services:
       dockerfile: config/docker/go.Dockerfile
     container_name: ${CONTAINER_GOLANG}
     restart: always
+    tty: true
     ports:
       - ${GOLANG_PORT}:5462
     volumes:
@@ -130,6 +131,18 @@ services:
       - ./config/redis:/usr/local/etc/redis
       - ./logs/redis:/var/log
       - ./data/redis:/data
+    networks:
+      - project
+
+  node:
+    build:
+      context: ./
+      dockerfile: config/docker/node.Dockerfile
+    container_name: ${CONTAINER_NODE}
+    tty: true
+    restart: always
+    volumes:
+      - ${PATH_PROJECT}:/var/www
     networks:
       - project
 

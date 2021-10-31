@@ -17,6 +17,7 @@ MAIL_PORT_SMTP=1025
 MAIL_PORT_HTTP=8025
 RADIS_PORT=6379
 GOLANG_PORT=5462
+NODE_PORT=3000
 
 # DataBase connect
 DB_USER=root
@@ -36,11 +37,12 @@ RMQ_NODE_NAME=rabbitmq@localhost
 REDIS_PASSWORD=password
 
 # Name container
-CONTAINER_SERVER=nginx
-CONTAINER_PHP=php
-CONTAINER_DB=postgres
-CONTAINER_ADMINER=adminer
-CONTAINER_RMQ=rabbitmq
-CONTAINER_MAIL=mail
-CONTAINER_REDIS=redis
-CONTAINER_GOLANG=golang
+CONTAINER_SERVER=nginx-project
+CONTAINER_PHP=php-project
+CONTAINER_DB=postgres-project
+CONTAINER_ADMINER=adminer-project
+CONTAINER_RMQ=rabbitmq-project
+CONTAINER_MAIL=mail-project
+CONTAINER_REDIS=redis-project
+CONTAINER_GOLANG=golang-project
+CONTAINER_NODE=node-project
