@@ -134,15 +134,18 @@ services:
     networks:
       - project
 
-  node:
+  vue:
     build:
       context: ./
-      dockerfile: config/docker/node.Dockerfile
-    container_name: ${CONTAINER_NODE}
+      dockerfile: config/docker/vue.Dockerfile
+    container_name: ${CONTAINER_VUE}
     tty: true
     restart: always
+    ports:
+      - ${VUE_PORT}:3000
     volumes:
-      - ${PATH_PROJECT}:/var/www
+      - ${PATH_VUE_PROJECT}:/var/www/vue
+      - ./logs/vue:/root/.npm
     networks:
       - project
 

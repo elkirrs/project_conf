@@ -5,6 +5,9 @@ include .env
 laravel_install: #Create new Laravel project
 	@docker exec -it $(CONTAINER_PHP) composer create-project --prefer-dist laravel/laravel .
 
+vue_install: #Create new vue project
+	@docker exec -it $(CONTAINER_VUE) npm install vue@next
+
 clear: #Clear cache and config
     @docker exec -it  $(CONTAINER_PHP) php artisan config:clear
 
@@ -52,14 +55,14 @@ connect_server: #Connect to server container
 connect_go: #Connect to golang container
 	@docker exec -it $(CONTAINER_GOLANG) $(SHELL)
 
-connect_node: #Connect to node container
-	@docker exec -it $(CONTAINER_NODE) $(SHELL)
+connect_vue: #Connect to node container
+	@docker exec -it $(CONTAINER_VUE) $(SHELL)
 
 npm_install: #Install dependency
-	@docker exec -it $(CONTAINER_NODE) npm install
+	@docker exec -it $(CONTAINER_VUE) npm install
 
 npm_build: #build file project --development
-	@docker exec -it $(CONTAINER_NODE) npm run dev
+	@docker exec -it $(CONTAINER_VUE) npm run dev
 
 npm_build_prod: #build file project --production
-	@docker exec -it $(CONTAINER_NODE) npm run prod
+	@docker exec -it $(CONTAINER_VUE) npm run prod
