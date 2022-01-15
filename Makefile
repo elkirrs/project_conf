@@ -44,7 +44,7 @@ connect_php: #Connect to APP container
 	@docker exec -it $(CONTAINER_PHP) $(SHELL)
 
 connect_db: #Connect to DB container
-	@docker exec -it $(CONTAINER_DB) $(SHELL)
+	@docker exec -it $(CONTAINER_POSTGRES) $(SHELL)
 
 connect_rmq: #Connect to rabbitmq container
 	@docker exec -it $(CONTAINER_RMQ) $(SHELL)
