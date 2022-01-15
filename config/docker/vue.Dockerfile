@@ -8,5 +8,5 @@ RUN apk --update add --no-cache nano \
 
 RUN npm i -g @vue/cli
 
-ENTRYPOINT ["sh", '/var/scripts/vue.sh']
+ENTRYPOINT ["sh", "/var/scripts/vue.sh"]
 CMD ["tail", "-f", "/dev/null"]
