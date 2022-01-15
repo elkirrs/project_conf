@@ -69,4 +69,12 @@ npm_run_dev: #build file project --production
 
 .PHONY: build_go
 build_go:
-	@docker exec -it ${CONTAINER_GOLANG} go build -v cmd
+	@docker exec -it ${CONTAINER_GOLANG} go build -v ./cmd/main.go
+
+.PHONY: test_go
+test_go:
+	@docker exec -it ${CONTAINER_GOLANG} go test -v -race -timeout 30s ./...
+
+.PHONY: run_go
+run_go:
+	@docker exec -it ${CONTAINER_GOLANG} ./main
