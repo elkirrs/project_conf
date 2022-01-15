@@ -1,5 +1,12 @@
 FROM node:lts-alpine
 
-WORKDIR /var/www/vue
+# Set working directory
+WORKDIR /var/www
 
-EXPOSE 3000
+RUN apk --update add --no-cache nano \
+    make zip curl unzip
+
+RUN npm i -g @vue/cli
+
+ENTRYPOINT ["sh", '/var/scripts/vue.sh']
+CMD ["tail", "-f", "/dev/null"]

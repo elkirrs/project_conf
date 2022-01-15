@@ -6,10 +6,10 @@ laravel_install: #Create new Laravel project
 	@docker exec -it $(CONTAINER_PHP) composer create-project --prefer-dist laravel/laravel .
 
 vue_install: #Create new vue project
-	@docker exec -it $(CONTAINER_VUE) npm install vue@next
+	@docker exec -it $(CONTAINER_VUE) vue create .
 
 clear: #Clear cache and config
-    @docker exec -it  $(CONTAINER_PHP) php artisan config:clear
+    @docker exec -it  $(CONTAINER_PHP) php artisan config:cache
 
 key: #generate APP key
 	@docker exec -it  $(CONTAINER_PHP) php artisan key:generate
@@ -62,7 +62,7 @@ npm_install: #Install dependency
 	@docker exec -it $(CONTAINER_VUE) npm install
 
 npm_build: #build file project --development
-	@docker exec -it $(CONTAINER_VUE) npm run dev
+	@docker exec -it $(CONTAINER_VUE) npm run build
 
-npm_build_prod: #build file project --production
-	@docker exec -it $(CONTAINER_VUE) npm run prod
+npm_run_dev: #build file project --production
+	@docker exec -it $(CONTAINER_VUE) npm run serve
