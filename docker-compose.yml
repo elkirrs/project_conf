@@ -41,8 +41,6 @@ services:
       - ./config/supervisor/conf.d:/etc/supervisor/conf.d
       - ./logs/supervisor:/var/log/supervisor
       - ./scripts/php:/var/scripts
-    depends_on:
-      - db
     networks:
       - project
 
@@ -58,7 +56,7 @@ services:
       POSTGRES_DB: ${DB_NAME}
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
-      - ${DB_PORT}:5432
+      - ${POSTGRES_PORT}:5432
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
     networks:
@@ -113,10 +111,9 @@ services:
     ports:
       - ${GOLANG_PORT}:5462
     volumes:
-      - ${PATH_GOLANG_PROJECT}:/var/golang
+      - ${PATH_GOLANG_PROJECT}:/var/www
       - ./logs/golang:/var/log
-    depends_on:
-      - db
+      - ./scripts/go:/var/scripts
     networks:
       - project
 

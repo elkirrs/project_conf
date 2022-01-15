@@ -66,3 +66,7 @@ npm_build: #build file project --development
 
 npm_run_dev: #build file project --production
 	@docker exec -it $(CONTAINER_VUE) npm run serve
+
+.PHONY: build_go
+build_go:
+	@docker exec -it ${CONTAINER_GOLANG} go build -v cmd

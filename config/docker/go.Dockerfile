@@ -1,13 +1,8 @@
 FROM golang:alpine
 
-RUN apk --update add --no-cache nano
+RUN apk --update add --no-cache nano curl
 
-WORKDIR /var/golang
-
-COPY /golang /var/golang
-RUN go mod download
-
-RUN mkdir -p /var/scripts
-COPY /scripts/golang/go.sh /var/scripts/go.sh
+WORKDIR /var/www
 
 ENTRYPOINT ["sh", "/var/scripts/go.sh"]
+CMD ["tail", "-f", "/dev/null"]
