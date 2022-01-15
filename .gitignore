@@ -1,5 +1,6 @@
 .idea
-logs/
+logs
 .env
 data
 .DS_Store
+dump
