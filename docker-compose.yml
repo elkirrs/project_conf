@@ -17,7 +17,7 @@ services:
     volumes:
       - ./config/nginx/conf.d:/etc/nginx/conf.d
       - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ${PATH_PROJECT}:/var/www/php
+#      - ${PATH_PROJECT}:/var/www/php
       - ${PATH_VUE_PROJECT}:/var/www/vue
       - ./logs/nginx:/var/log/nginx
     networks:
@@ -35,7 +35,6 @@ services:
       - ${PHP_PORT}:9000
       - ${SUPERVISOR_PORT}:9001
     volumes:
-      - ./config/php/:/usr/local/etc/php/conf.d/custom-php.ini
       - ${PATH_PROJECT}:/var/www
       - ./config/supervisor:/etc/supervisor
       - ./config/supervisor/conf.d:/etc/supervisor/conf.d
@@ -149,6 +148,25 @@ services:
       - ${PATH_VUE_PROJECT}:/var/www
       - ./scripts/vue:/var/scripts
       - ./logs/vue:/root/.npm/_logs
+    networks:
+      - project
+
+  mongodb:
+    build:
+      context: ./
+      dockerfile: config/docker/mongodb.Dockerfile
+    container_name: ${CONTAINER_MONGODB}
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGODB_NAME}
+    volumes:
+      - ./data/mongodb:/data/db
+      - ./scripts/mongodb:/var/scripts
+      - ./logs/mongodb:/var/log/mongodb
+    ports:
+      - ${MONGODB_PORT}:27017
     networks:
       - project
 
