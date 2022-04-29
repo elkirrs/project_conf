@@ -17,6 +17,7 @@ services:
       - ${NGINX_PORT_HTTPS}:443
       - ${VUE_PORT}:3000
     volumes:
+      - ./config/nginx/sites-available:/etc/nginx/sites-available
       - ./config/nginx/conf.d:/etc/nginx/conf.d
       - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
       - ${PATH_PROJECT}:/var/www/php

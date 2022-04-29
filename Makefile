@@ -104,7 +104,7 @@ php_clear: #Clear cache and config
 
 .PHONY: php_key
 php_key: #generate APP key
-	@docker exec -it  $(CONTAINER_PHP) php artisan key:generate
+	@docker exec -it $(CONTAINER_PHP) php artisan key:generate
 
 .PHONY: own
 own: #Set ownership
@@ -113,4 +113,26 @@ own: #Set ownership
 .PHONY: show
 show: #show docker's containers
 	@sudo docker ps
+
+.PHONY: site_disable
+site_disable: #Site disable
+	@if [ -z ${name} ]; then \
+		printf 'Name site not exist \nFor example command: "make site_disable name=<name_site>"\n' exit 1; \
+ 	fi
+
+	@if [ ! -z ${name} ]; then \
+		docker exec -t $(CONTAINER_SERVER) mv /etc/nginx/conf.d/${name}.conf /etc/nginx/sites-available/${name}.conf; \
+		docker restart $(CONTAINER_SERVER) ; \
+	fi
+
+.PHONY: site_enable
+site_enable: #Site enable
+	@if [ -z ${name} ]; then \
+		printf 'Name site not exist \nFor example command: "make site_enable name=<name_site>"\n' exit 1; \
+ 	fi
+
+	@if [ ! -z ${name} ]; then \
+		docker exec -t $(CONTAINER_SERVER) mv /etc/nginx/sites-available/${name}.conf /etc/nginx/conf.d/${name}.conf; \
+		docker restart $(CONTAINER_SERVER); \
+	fi
 #-----------------------------------------------------------------------------------------------------------------------
