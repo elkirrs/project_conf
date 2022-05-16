@@ -135,4 +135,31 @@ site_enable: #Site enable
 		docker exec -t $(CONTAINER_SERVER) mv /etc/nginx/sites-available/${name}.conf /etc/nginx/conf.d/${name}.conf; \
 		docker restart $(CONTAINER_SERVER); \
 	fi
+
+.PHONY: dump
+dump: #Dump DB
+	@echo 'For example command: "make dump name=<name_file_db> db=<demo>"'
+	@if [ -z ${name} ]; then \
+		echo 'Name file dump not exist' exit 1; \
+	fi
+
+	@if [ -z ${db} ]; then \
+		echo 'Name DB not exist. Set default name DB $(DB_NAME)'; \
+	fi
+
+	@if [ ! -z ${db} ]; then \
+		$(DB_NAME) ?= ${db}; \
+	fi
+
+	@if [ ! -z ${name} ]; then \
+		tar -xvf ./dump/${name}.tar.gz; \
+		docker exec -i $(CONTAINER_POSTGRES) psql $(DB_NAME) < ${name}.sql; \
+	fi
+
+	@if [ -f ${name}.sql ]; then \
+		rm ${name}.sql; \
+		echo 'Database dump was successful.'; \
+		echo 'Use DB $(DB_NAME)'; \
+	fi
+
 #-----------------------------------------------------------------------------------------------------------------------
