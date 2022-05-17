@@ -14,17 +14,17 @@ RUN apk --update add --no-cache htop zip curl unzip libgd \
     && pecl install amqp && docker-php-ext-enable amqp \
     && pecl install xdebug && docker-php-ext-enable xdebug \
     && pecl install redis && docker-php-ext-enable redis \
-    && pecl install mongodb
-#    && (yes | pecl install imagick) && docker-php-ext-enable imagick
+    && pecl install mongodb \
+    && (yes | pecl install imagick) && docker-php-ext-enable imagick
 
 # Clear cache
 RUN rm -rf /var/lib/apk/* && rm -rf /var/cache/apk/*
 
 # Install extensions
-RUN docker-php-ext-install bz2 ctype intl iconv \
+RUN docker-php-ext-install bz2 ctype intl \
     bcmath opcache calendar mbstring pgsql \
     pdo_pgsql xml zip exif pcntl gd
-#    json tokenizer sockets
+#    json tokenizer sockets iconv
 
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer

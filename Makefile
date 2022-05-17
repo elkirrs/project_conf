@@ -13,6 +13,10 @@ vue_i: #Create new vue project
 .PHONY: npm_i
 npm_i: #Install js dependency
 	@docker exec -it $(CONTAINER_VUE) npm install
+
+.PHONY: composer_i
+composer_i: #Install php dependency
+	@docker exec -it $(CONTAINER_PHP) composer install
 #-----------------------------------------------------------------------------------------------------------------------
 
 
@@ -98,9 +102,9 @@ go: #run the compiled app go
 
 
 #Other command
-.PHONY: php_clear
-php_clear: #Clear cache and config
-    @docker exec -it  $(CONTAINER_PHP) php artisan config:cache
+.PHONY: php_clean
+php_clean: #Clean cache and config
+	@docker exec -it $(CONTAINER_PHP) php artisan config:cache
 
 .PHONY: php_key
 php_key: #generate APP key
