@@ -51,7 +51,7 @@ services:
   postgres:
     build:
       context: ./
-      dockerfile: config/docker/db.Dockerfile
+      dockerfile: config/docker/postgres.Dockerfile
     container_name: ${CONTAINER_POSTGRES}
     restart: unless-stopped
     environment:
