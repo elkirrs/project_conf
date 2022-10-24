@@ -23,6 +23,10 @@ services:
       - ${PATH_PROJECT}:/var/www/php
       - ${PATH_VUE_PROJECT}:/var/www/vue
       - ./logs/nginx:/var/log/nginx
+      - ./ssl:/etc/nginx/listen
+#      - ./certbot:/var/www/certbot
+#      - ./certbot/conf:/etc/nginx/listen
+      - ./scripts/nginx:/var/scripts
     networks:
       - project
 
@@ -55,9 +59,9 @@ services:
     container_name: ${CONTAINER_POSTGRES}
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASS}
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASS}
+      POSTGRES_DB: ${POSTGRES_NAME}
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
       - ${POSTGRES_PORT}:5432
@@ -130,7 +134,7 @@ services:
     environment:
       TZ: ${TZ}
     ports:
-      - ${RADIS_PORT}:6379
+      - ${REDIS_PORT}:6379
     volumes:
       - ./config/redis:/usr/local/etc/redis
       - ./logs/redis:/var/log
@@ -174,6 +178,19 @@ services:
       - ${MONGODB_PORT}:27017
     networks:
       - project
+
+#  certbot:
+#    build:
+#      context: ./
+#      dockerfile: config/docker/certbot.Dockerfile
+#    container_name: ${CONTAINER_CERTBOT}
+#    restart: unless-stopped
+#    volumes:
+#      - ./certbot/:/var/www/certbot/:rw
+#      - ./certbot/conf/:/etc/letsencrypt/:rw
+#      - ./logs/certbot:/var/log/letsencrypt
+#    networks:
+#      - project
 
 networks:
   project:

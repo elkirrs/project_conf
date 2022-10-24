@@ -23,8 +23,8 @@ RUN rm -rf /var/lib/apk/* && rm -rf /var/cache/apk/*
 # Install extensions
 RUN docker-php-ext-install bz2 ctype intl \
     bcmath opcache calendar mbstring pgsql \
-    pdo_pgsql xml zip exif pcntl gd
-#    json tokenizer sockets iconv
+    pdo_pgsql xml zip exif pcntl gd sockets
+#    json tokenizer iconv
 
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
