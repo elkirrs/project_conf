@@ -221,8 +221,8 @@ help: #help to command from makefile
 	  php_clean: =\> Clean cache and config \\n\\r \
 	  php_key: =\> Generate APP key \\n\\r \
 	  own: =\> Set ownership \\n\\r \
-	  show: =\> Show docker\'s containers \\n\\r \
+	  show: =\> "Show docker's containers" \\n\\r \
 	  site_disable "name=<name_site>": =\> Site disable \\n\\r \
 	  site_enable "name=<name_site>": =\> Site enable \\n\\r \
-	  dump "name=<name_file_db>": =\> Dump DB. Format file db was be example_dump_db.tar.gz \\n
+	  dump "name=<name_file_db>": =\> Dump DB. Format file db was be example_dump_db.tar.gz \\n\\r
 
