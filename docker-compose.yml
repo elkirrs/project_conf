@@ -45,10 +45,12 @@ services:
       - ${SUPERVISOR_PORT}:9001
     volumes:
       - ${PATH_PROJECT}:/var/www
-      - ./config/supervisor:/etc/supervisor
+      - ./config/supervisor:/var/config/supervisor
       - ./config/supervisor/conf.d:/etc/supervisor/conf.d
       - ./logs/supervisor:/var/log/supervisor
       - ./scripts/php:/var/scripts
+      - ./config/php:/var/config/php
+      - ./proto:/var/proto
     networks:
       - project
 
@@ -122,6 +124,7 @@ services:
       - ${PATH_GOLANG_PROJECT}:/var/www
       - ./logs/golang:/var/log
       - ./scripts/go:/var/scripts
+      - ./proto:/var/proto
     networks:
       - project
 

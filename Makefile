@@ -30,7 +30,7 @@ build: #build docker container @docker-compose build
 	@docker-compose build
 
 .PHONY: down
-down: #stop docker containers
+down: #stop and remove docker containers @docker-compose down
 	@docker-compose down
 
 .PHONY: start
@@ -78,7 +78,7 @@ connect_mongo: #Connect to mongodb container
 #-----------------------------------------------------------------------------------------------------------------------
 
 
-#Commanf for build and development
+#Command for build and development
 .PHONY: npm_build
 npm_build: #build js app
 	@docker exec -it $(CONTAINER_VUE) npm run build
@@ -89,15 +89,26 @@ npm_run: #Run development js server
 
 .PHONY: go_build
 go_build: #build app go
-	@docker exec -it ${CONTAINER_GOLANG} go build -v ./cmd/main.go
+	@docker exec -it $(CONTAINER_GOLANG) go build -v ./cmd/main.go
 
 .PHONY: go_test
 go_test: #run the test app go
-	@docker exec -it ${CONTAINER_GOLANG} go test -v -race -timeout 30s ./...
+	@docker exec -it $(CONTAINER_GOLANG) go test -v -race -timeout 30s ./...
 
 .PHONY: go
 go: #run the compiled app go
-	@docker exec -it ${CONTAINER_GOLANG} ./main
+	@docker exec -it $(CONTAINER_GOLANG) ./main
+
+.PHONY: grpc_go
+grpc_go: # build grpc go files
+	@docker exec -it $(CONTAINER_GOLANG) sh /var/scripts/proto.sh
+
+.PHONY: grpc_php
+grpc_php: #build grpc php files
+	@docker exec -it $(CONTAINER_PHP) sh /var/scripts/proto.sh
+
+.PHONY: grpc_build
+grpc_build: grpc_go grpc_php
 #-----------------------------------------------------------------------------------------------------------------------
 
 
@@ -167,3 +178,47 @@ dump: #Dump DB
 	fi
 
 #-----------------------------------------------------------------------------------------------------------------------
+.PHONY: help
+help: #help to command from makefile
+	@echo WORK IN CONTAINER \\n\\r \
+ 	  up: =\> start docker containers @docker-compose up -d \\n\\r \
+	  build: =\> build docker container @docker-compose build \\n\\r \
+	  down: =\> stop and remove docker containers @docker-compose down \\n\\r \
+	  start: =\> start docker containers @docker-compose start \\n\\r \
+	  stop: =\> stop docker containers @docker-compose stop \\n\\r \
+	  restart: =\> restart docker containers @docker-compose restart \\n\\r
+
+	@echo INSTALL APP \\n\\r \
+	  laravel_i: =\> Create new Laravel project. Last version "(container PHP)" \\n\\r \
+	  composer_i: =\> Install php dependency "(container PHP)" \\n\\r \
+	  vui_i: =\> Create new vue project "(container VUI)" \\n\\r \
+	  npm_i: =\> Install js dependency "(container VUI)" \\n\\r
+
+	@echo CONNECT CONTAINER \\n\\r \
+	  connect_php: =\> Connect to php container \\n\\r \
+	  connect_psql: =\>Connect to DB "(POSTGRES)" container \\n\\r \
+	  connect_rmq: =\> Connect to rabbitmq container \\n\\r \
+	  connect_server: =\> Connect to server container \\n\\r \
+	  connect_go: =\> Connect to golang container \\n\\r \
+	  connect_vue: =\> Connect to vue container \\n\\r \
+	  connect_mongo: =\> Connect to mongodb container \\n\\r
+
+	@echo BUILD AND DEVELOPMENT \\n\\r \
+	  npm_build: =\> Build js app \\n\\r \
+	  npm_run: =\> Run development js server \\n\\r \
+	  go_build: =\> Build app go \\n\\r \
+	  go_test: =\> Run the test app go \\n\\r \
+	  go: =\> Run the compiled app go \\n\\r \
+	  grpc_go: =\> Build grpc go files \\n\\r \
+	  grpc_php: =\> Build grpc php files \\n\\r \
+	  grpc_build: =\> Build grpc all files \\n\\r
+
+	@echo HELP COMMAND \\n\\r \
+	  php_clean: =\> Clean cache and config \\n\\r \
+	  php_key: =\> Generate APP key \\n\\r \
+	  own: =\> Set ownership \\n\\r \
+	  show: =\> Show docker\'s containers \\n\\r \
+	  site_disable "name=<name_site>": =\> Site disable \\n\\r \
+	  site_enable "name=<name_site>": =\> Site enable \\n\\r \
+	  dump "name=<name_file_db>": =\> Dump DB. Format file db was be example_dump_db.tar.gz \\n\\r
+

@@ -8,16 +8,20 @@ fi
 
 chmod 777 -Rf /var/log
 
-go version
-
 if [ ! -f /var/www/go.mod ]; then
   go mod init app
 fi
 
-if [ -f /var/www/cmd/main.go ]; then
-  go build -v ./cmd/main.go
+#if [ -f /var/www/cmd/main.go ]; then
+#  go build -v ./cmd/main.go
+#fi
+
+if [ -d /var/proto ] && [ -f /var/scripts/proto.sh ]; then
+  sh /var/scripts/proto.sh
 fi
 
+go version
+protoc --version
 echo "Starting golang"
 
 exec "$@"

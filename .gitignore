@@ -5,3 +5,7 @@ data
 .DS_Store
 dump
 ssl
+php/*
+vue/*
+golang/*
+proto/*
