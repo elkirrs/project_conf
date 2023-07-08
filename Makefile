@@ -17,6 +17,10 @@ npm_i: #Install js dependency
 .PHONY: composer_i
 composer_i: #Install php dependency
 	@docker exec -it $(CONTAINER_PHP) composer install
+
+.PHONY: composer_du
+composer_du: # Composer dump autoload
+	@docker exec -it $(CONTAINER_PHP) compose du
 #-----------------------------------------------------------------------------------------------------------------------
 
 
