@@ -17,6 +17,10 @@ npm_i: #Install js dependency
 .PHONY: composer_i
 composer_i: #Install php dependency
 	@docker exec -it $(CONTAINER_PHP) composer install
+
+.PHONY: composer_du
+composer_du: # Composer dump autoload
+	@docker exec -it $(CONTAINER_PHP) compose du
 #-----------------------------------------------------------------------------------------------------------------------
 
 
@@ -220,5 +224,5 @@ help: #help to command from makefile
 	  show: =\> Show docker\'s containers \\n\\r \
 	  site_disable "name=<name_site>": =\> Site disable \\n\\r \
 	  site_enable "name=<name_site>": =\> Site enable \\n\\r \
-	  dump "name=<name_file_db>": =\> Dump DB. Format file db was be example_dump_db.tar.gz \\n\\r
+	  dump "name=<name_file_db>": =\> Dump DB. Format file db was be example_dump_db.tar.gz \\n
 
