@@ -1,1 +1,3 @@
-FROM certbot/certbot:latest
+ARG VERSION
+
+FROM certbot/certbot:$VERSION

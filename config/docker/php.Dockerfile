@@ -1,4 +1,6 @@
-FROM php:8.2-fpm-alpine
+ARG VERSION
+
+FROM php:$VERSION
 
 # Set working directory
 WORKDIR /var/www

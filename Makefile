@@ -7,7 +7,7 @@ laravel_i: #Create new Laravel project. Last version
 	@docker exec -it $(CONTAINER_PHP) composer create-project --prefer-dist laravel/laravel .
 
 .PHONY: vue_i
-vue_i: #Create new vue project
+vue_i: #Create new js project
 	@docker exec -it $(CONTAINER_VUE) vue create .
 
 .PHONY: npm_i
@@ -72,9 +72,9 @@ connect_server: #Connect to server container
 connect_go: #Connect to golang container
 	@docker exec -it $(CONTAINER_GOLANG) $(SHELL)
 
-.PHONY: connect_vue
-connect_vue: #Connect to vue container
-	@docker exec -it $(CONTAINER_VUE) $(SHELL)
+.PHONY: connect_node
+connect_vue: #Connect to node container
+	@docker exec -it $(CONTAINER_NODE) $(SHELL)
 
 .PHONY: connect_mongo
 connect_mongo: #Connect to mongodb container
@@ -133,6 +133,15 @@ own: #Set ownership
 show: #show docker's containers
 	@sudo docker ps
 
+.PHONY: elastic_token
+elastic_token: #Generate elastic token
+	@docker exec -it $(CONTAINER_ELASTICSEARCH) bin/elasticsearch-create-enrollment-token --scope kibana
+
+.PHONY: kibana_code
+kibana_code: #Generate elastic token
+	@docker exec -it $(CONTAINER_KIBANA) bin/kibana-verification-code
+
+
 .PHONY: site_disable
 site_disable: #Site disable
 	@if [ -z ${name} ]; then \
@@ -182,6 +191,8 @@ dump: #Dump DB
 	fi
 
 #-----------------------------------------------------------------------------------------------------------------------
+
+#Helper
 .PHONY: help
 help: #help to command from makefile
 	@echo WORK IN CONTAINER \\n\\r \
@@ -204,7 +215,7 @@ help: #help to command from makefile
 	  connect_rmq: =\> Connect to rabbitmq container \\n\\r \
 	  connect_server: =\> Connect to server container \\n\\r \
 	  connect_go: =\> Connect to golang container \\n\\r \
-	  connect_vue: =\> Connect to vue container \\n\\r \
+	  connect_node: =\> Connect to node container \\n\\r \
 	  connect_mongo: =\> Connect to mongodb container \\n\\r
 
 	@echo BUILD AND DEVELOPMENT \\n\\r \

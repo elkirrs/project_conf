@@ -1,3 +1,5 @@
-FROM postgres:alpine
+ARG VERSION
+
+FROM postgres:$VERSION
 
 EXPOSE 5432

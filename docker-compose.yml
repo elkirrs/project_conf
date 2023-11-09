@@ -6,6 +6,8 @@ services:
     build:
       context: ./
       dockerfile: config/docker/nginx.Dockerfile
+      args:
+        VERSION: ${VERSION_NGINX}
     container_name: ${CONTAINER_SERVER}
     restart: unless-stopped
     environment:
@@ -13,15 +15,15 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
-      - ${NGINX_PORT_HTTP}:80
-      - ${NGINX_PORT_HTTPS}:443
-      - ${VUE_PORT}:3000
+      - ${NGINX_PHP_PORT_HTTP}:80
+      - ${NGINX_PHP_PORT_HTTPS}:443
+      - ${NGINX_JS_PORT}:3000
     volumes:
       - ./config/nginx/sites-available:/etc/nginx/sites-available
       - ./config/nginx/conf.d:/etc/nginx/conf.d
       - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ${PATH_PROJECT}:/var/www/php
-      - ${PATH_VUE_PROJECT}:/var/www/vue
+      - ${PATH_PHP_PROJECT}:/var/www/php
+      - ${PATH_JS_PROJECT}:/var/www/js
       - ./logs/nginx:/var/log/nginx
       - ./ssl:/etc/nginx/listen
 #      - ./certbot:/var/www/certbot
@@ -34,6 +36,8 @@ services:
     build:
       context: ./
       dockerfile: config/docker/php.Dockerfile
+      args:
+        VERSION: ${VERSION_PHP}
     container_name: ${CONTAINER_PHP}
     restart: unless-stopped
     environment:
@@ -44,7 +48,7 @@ services:
       - ${PHP_PORT}:9000
       - ${SUPERVISOR_PORT}:9001
     volumes:
-      - ${PATH_PROJECT}:/var/www
+      - ${PATH_PHP_PROJECT}:/var/www
       - ./config/supervisor:/var/config/supervisor
       - ./config/supervisor/conf.d:/etc/supervisor/conf.d
       - ./logs/supervisor:/var/log/supervisor
@@ -58,6 +62,8 @@ services:
     build:
       context: ./
       dockerfile: config/docker/postgres.Dockerfile
+      args:
+        VERSION: ${VERSION_POSTGRES}
     container_name: ${CONTAINER_POSTGRES}
     restart: unless-stopped
     environment:
@@ -76,6 +82,8 @@ services:
     build:
       context: ./
       dockerfile: config/docker/rabbitmq.Dockerfile
+      args:
+        VERSION: ${VERSION_RABBITMQ}
     container_name: ${CONTAINER_RMQ}
     restart: unless-stopped
     environment:
@@ -113,6 +121,8 @@ services:
     build:
       context: ./
       dockerfile: config/docker/go.Dockerfile
+      args:
+        VERSION: ${VERSION_GOLANG}
     container_name: ${CONTAINER_GOLANG}
     restart: unless-stopped
     environment:
@@ -132,6 +142,8 @@ services:
     build:
       context: ./
       dockerfile: config/docker/redis.Dockerfile
+      args:
+        VERSION: ${VERSION_REDIS}
     container_name: ${CONTAINER_REDIS}
     restart: unless-stopped
     environment:
@@ -145,21 +157,24 @@ services:
     networks:
       - project
 
-  vue:
+  node:
     build:
       context: ./
-      dockerfile: config/docker/vue.Dockerfile
-    container_name: ${CONTAINER_VUE}
+      dockerfile: config/docker/node.Dockerfile
+      args:
+        VERSION: ${VERSION_NODE}
+        FRAMEWORK: ${GLOBAL_JS_FRAMEWORK_COMMAND}
+    container_name: ${CONTAINER_NODE}
     tty: true
     environment:
       TZ: ${TZ}
     ports:
-      - ${VUE_PORT_DEV}:8080
+      - ${NODE_PORT_DEV}:8080
     restart: unless-stopped
     volumes:
-      - ${PATH_VUE_PROJECT}:/var/www
-      - ./scripts/vue:/var/scripts
-      - ./logs/vue:/root/.npm/_logs
+      - ${PATH_JS_PROJECT}:/var/www
+      - ./scripts/node:/var/scripts
+      - ./logs/node:/root/.npm/_logs
     networks:
       - project
 
@@ -167,6 +182,8 @@ services:
     build:
       context: ./
       dockerfile: config/docker/mongodb.Dockerfile
+      args:
+        VERSION: ${VERSION_MONGODB}
     container_name: ${CONTAINER_MONGODB}
     restart: unless-stopped
     environment:
@@ -182,10 +199,95 @@ services:
     networks:
       - project
 
+  prometheus:
+    build:
+      context: ./
+      dockerfile: config/docker/prometheus.Dockerfile
+      args:
+        VERSION: ${VERSION_PROMETHEUS}
+    container_name: ${CONTAINER_PROMETHEUS}
+    restart: unless-stopped
+    ports:
+      - ${PROMETHEUS_PORT}:9090
+    environment:
+      SERVER_NAME: ${KIBANA_SERVER_NAME}
+      ELASTICSEARCH_HOSTS: ${ELASTICSEARCH_HOST}
+#    volumes:
+#      - ./config/prometheus:/etc/prometheus
+    networks:
+      - project
+
+  logstash:
+    build:
+      context: ./
+      dockerfile: config/docker/logstash.Dockerfile
+      args:
+        VERSION: ${VERSION_LOGSTASH}
+    container_name: ${CONTAINER_LOGSTASH}
+    restart: unless-stopped
+    volumes:
+#      - ./config/logstash/:/usr/share/logstash/config
+      - ./logs/logstash:/usr/share/logstash/logs
+
+  kibana:
+    build:
+      context: ./
+      dockerfile: config/docker/kibana.Dockerfile
+      args:
+        VERSION: ${VERSION_KIBANA}
+    container_name: ${CONTAINER_KIBANA}
+    restart: unless-stopped
+    ports:
+      - ${KIBANA_PORT}:5601
+    volumes:
+      - ./data/kibana:/usr/share/kibana/data
+    environment:
+      ELASTICSEARCH_HOSTS: ${ELASTICSEARCH_HOST}
+    networks:
+     - project
+
+  grafana:
+    build:
+      context: ./
+      dockerfile: config/docker/grafana.Dockerfile
+      args:
+        VERSION: ${VERSION_GRAFANA}
+    container_name: ${CONTAINER_GRAFANA}
+    restart: unless-stopped
+    ports:
+      - ${GRAFANA_PORT}:3000
+    volumes:
+      - ./data/grafana:/var/lib/grafana
+    networks:
+      - project
+
+  elastic:
+    build:
+      context: ./
+      dockerfile: config/docker/elastic.Dockerfile
+      args:
+        VERSION: ${VERSION_ELASTICSEARCH}
+    environment:
+      discovery.type: single-node
+      xpack.security.enrollment.enabled: true
+      ELASTIC_PASSWORD: password
+    container_name: ${CONTAINER_ELASTICSEARCH}
+    restart: unless-stopped
+    ports:
+      - ${ELASTICSEARCH_PORT}:9200
+    volumes:
+      - ./data/elastic/:/usr/share/elasticsearch/data
+      - ./logs/elastic/:/usr/share/elasticsearch/logs
+    networks:
+      - project
+
+
 #  certbot:
 #    build:
 #      context: ./
 #      dockerfile: config/docker/certbot.Dockerfile
+#      args:
+#        VERSION: ${VERSION_CERTBOT}
 #    container_name: ${CONTAINER_CERTBOT}
 #    restart: unless-stopped
 #    volumes:
@@ -194,6 +296,7 @@ services:
 #      - ./logs/certbot:/var/log/letsencrypt
 #    networks:
 #      - project
+
 
 networks:
   project:

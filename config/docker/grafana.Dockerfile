@@ -1,0 +1,5 @@
+ARG VERSION
+
+FROM grafana/grafana:$VERSION
+
+EXPOSE 3001

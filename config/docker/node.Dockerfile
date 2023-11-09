@@ -1,4 +1,6 @@
-FROM node:lts-alpine
+ARG VERSION
+
+FROM node:$VERSION
 
 # Set working directory
 WORKDIR /var/www
@@ -8,5 +10,5 @@ RUN apk --update add --no-cache nano \
 
 RUN npm i -g @vue/cli
 
-ENTRYPOINT ["sh", "/var/scripts/vue.sh"]
+ENTRYPOINT ["sh", "/var/scripts/node.sh"]
 CMD ["tail", "-f", "/dev/null"]

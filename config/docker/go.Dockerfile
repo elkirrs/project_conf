@@ -1,4 +1,6 @@
-FROM golang:alpine
+ARG VERSION
+
+FROM golang:$VERSION
 
 RUN apk --update add --no-cache nano curl protobuf
 
