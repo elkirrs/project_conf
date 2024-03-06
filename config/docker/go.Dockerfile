@@ -2,7 +2,7 @@ ARG VERSION
 
 FROM golang:$VERSION
 
-RUN apk --update add --no-cache nano curl protobuf
+RUN apk --update add --no-cache nano curl protobuf build-base sqlite-dev libpq postgresql-dev
 
 WORKDIR /var/www
 

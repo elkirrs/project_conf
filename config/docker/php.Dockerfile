@@ -12,17 +12,17 @@ RUN apk add --update --no-cache zip curl unzip libgd make cmake git \
     libpng libjpeg-turbo freetype-dev libpng-dev jpeg-dev libjpeg libjpeg-turbo-dev \
     g++ supervisor nano libpq postgresql-dev \
     rabbitmq-c rabbitmq-c-dev protobuf-dev \
-    imagemagick imagemagick-dev \
+#    imagemagick imagemagick-dev \
     grpc libstdc++ musl php-common linux-headers \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --enable-gd \
     && pecl install amqp \
     && pecl install xdebug \
     && pecl install redis \
     && pecl install mongodb \
-    && (yes | pecl install imagick) \
+#    && (yes | pecl install imagick) \
     && pecl install protobuf \
     && pecl install grpc \
-    && docker-php-ext-enable amqp xdebug redis imagick protobuf grpc
+    && docker-php-ext-enable amqp xdebug redis protobuf grpc mongodb
 
 # Install extensions
 RUN docker-php-ext-install -j$(nproc) gd \
@@ -44,8 +44,7 @@ RUN cd / && git clone --recurse-submodules --depth 1 --shallow-submodules https:
 # Clear cache
 RUN rm -rf /var/lib/apk/* && rm -rf /var/cache/apk/* && rm -rf /grpc
 
-RUN mv $PHP_INI_DIR/php.ini-development $PHP_INI_DIR/php.ini \
-    && echo "extension=mongodb.so" >> /usr/local/etc/php/conf.d/docker-php-ext-mongodb.ini
+RUN mv $PHP_INI_DIR/php.ini-development $PHP_INI_DIR/php.ini
 
 EXPOSE 9000
 ENTRYPOINT ["sh", "/var/scripts/php.sh"]

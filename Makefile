@@ -6,13 +6,17 @@ include .env
 laravel_i: #Create new Laravel project. Last version
 	@docker exec -it $(CONTAINER_PHP) composer create-project --prefer-dist laravel/laravel .
 
+.PHONY: chat_i
+chat_i: #Create new chat project. Last version
+	@docker exec -it $(CONTAINER_CHAT) composer create-project spiral/app .
+
 .PHONY: vue_i
-vue_i: #Create new js project
-	@docker exec -it $(CONTAINER_VUE) vue create .
+vue_i: #Create new vue js project
+	@docker exec -it $(CONTAINER_NODE) npm init vuetify
 
 .PHONY: npm_i
 npm_i: #Install js dependency
-	@docker exec -it $(CONTAINER_VUE) npm install
+	@docker exec -it $(CONTAINER_NODE) npm install
 
 .PHONY: composer_i
 composer_i: #Install php dependency
@@ -73,30 +77,34 @@ connect_go: #Connect to golang container
 	@docker exec -it $(CONTAINER_GOLANG) $(SHELL)
 
 .PHONY: connect_node
-connect_vue: #Connect to node container
+connect_node: #Connect to node container
 	@docker exec -it $(CONTAINER_NODE) $(SHELL)
 
 .PHONY: connect_mongo
 connect_mongo: #Connect to mongodb container
 	@docker exec -it $(CONTAINER_MONGODB) $(SHELL)
+
+.PHONY: connect_chat
+connect_chat: #Connect to chat container
+	@docker exec -it $(CONTAINER_CHAT) $(SHELL)
 #-----------------------------------------------------------------------------------------------------------------------
 
 
 #Command for build and development
 .PHONY: npm_build
 npm_build: #build js app
-	@docker exec -it $(CONTAINER_VUE) npm run build
+	@docker exec -it $(CONTAINER_NODE) npm run build
 
-.PHONY: npm_run
-npm_run: #Run development js server
-	@docker exec -it $(CONTAINER_VUE) npm run serve
+.PHONY: npm_dev
+npm_dev: #Run development js server
+	@docker exec -it $(CONTAINER_NODE) npm run dev
 
 .PHONY: go_build
 go_build: #build app go
 	@docker exec -it $(CONTAINER_GOLANG) go build -v ./cmd/main.go
 
 .PHONY: go_test
-go_test: #run the test app go
+go_test: #run the tests app go
 	@docker exec -it $(CONTAINER_GOLANG) go test -v -race -timeout 30s ./...
 
 .PHONY: go
@@ -217,10 +225,11 @@ help: #help to command from makefile
 	  connect_go: =\> Connect to golang container \\n\\r \
 	  connect_node: =\> Connect to node container \\n\\r \
 	  connect_mongo: =\> Connect to mongodb container \\n\\r
+	  connect_chat: =\> Connect to chat container \\n\\r
 
 	@echo BUILD AND DEVELOPMENT \\n\\r \
 	  npm_build: =\> Build js app \\n\\r \
-	  npm_run: =\> Run development js server \\n\\r \
+	  npm_dev: =\> Run development js server \\n\\r \
 	  go_build: =\> Build app go \\n\\r \
 	  go_test: =\> Run the test app go \\n\\r \
 	  go: =\> Run the compiled app go \\n\\r \

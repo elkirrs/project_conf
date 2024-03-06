@@ -1,0 +1,17 @@
+{
+  "token_hmac_secret_key": "cf5e71db-5d6b-46e3-a0ec-256abf9aba5b",
+  "admin": true,
+  "admin_password": "642e7ce9-2789-4ea2-8c7f-932aacef20b2",
+  "admin_secret": "434fb66e-2493-4067-9b1a-b20ce9edc3fe",
+  "api_key": "fa6f77f5-995b-4529-bb70-7a4fbc1ba47d",
+  "allowed_origins": [
+    "http://localhost:8080"
+  ],
+  "grpc_api": true,
+  "grpc_api_address": "localhost",
+  "grpc_api_port": 10000,
+  "proxy_connect_endpoint": "grpc://chat:10001",
+  "proxy_connect_timeout": "10s",
+  "proxy_rpc_endpoint": "grpc://chat:10001",
+  "proxy_rpc_timeout": "10s"
+}

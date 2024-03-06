@@ -12,8 +12,6 @@ services:
     restart: unless-stopped
     environment:
       TZ: ${TZ}
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     ports:
       - ${NGINX_PHP_PORT_HTTP}:80
       - ${NGINX_PHP_PORT_HTTPS}:443
@@ -163,13 +161,13 @@ services:
       dockerfile: config/docker/node.Dockerfile
       args:
         VERSION: ${VERSION_NODE}
-        FRAMEWORK: ${GLOBAL_JS_FRAMEWORK_COMMAND}
     container_name: ${CONTAINER_NODE}
     tty: true
     environment:
       TZ: ${TZ}
     ports:
       - ${NODE_PORT_DEV}:8080
+      - ${NODE_PORT_PREVIEW}:4173
     restart: unless-stopped
     volumes:
       - ${PATH_JS_PROJECT}:/var/www
@@ -225,8 +223,18 @@ services:
         VERSION: ${VERSION_LOGSTASH}
     container_name: ${CONTAINER_LOGSTASH}
     restart: unless-stopped
+    environment:
+      discovery.seed_hosts: logstash
+      LS_JAVA_OPTS: -Xmx1g -Xms1g
+      LOGSTASH_INTERNAL_PASSWORD: 'password'
+    ports:
+      - "5001:5000/tcp"
+      - "5001:5000/udp"
+      - "5044:5044"
+      - "9600:9600"
     volumes:
-#      - ./config/logstash/:/usr/share/logstash/config
+      - ./config/logstash/:/var/config/logstash
+      - ./scripts/logstash:/var/scripts
       - ./logs/logstash:/usr/share/logstash/logs
 
   kibana:
@@ -243,6 +251,7 @@ services:
       - ./data/kibana:/usr/share/kibana/data
     environment:
       ELASTICSEARCH_HOSTS: ${ELASTICSEARCH_HOST}
+      KIBANA_SYSTEM_PASSWORD: 'password'
     networks:
      - project
 
@@ -269,18 +278,22 @@ services:
         VERSION: ${VERSION_ELASTICSEARCH}
     environment:
       discovery.type: single-node
-      xpack.security.enrollment.enabled: true
+      xpack.security.enabled: false
+      xpack.license.self_generated.type: basic
+#      xpack.security.enrollment.enabled: true
+      LS_JAVA_OPTS: -Xmx1g -Xms1g
+      ELASTIC_USERNAME: elastic
       ELASTIC_PASSWORD: password
     container_name: ${CONTAINER_ELASTICSEARCH}
     restart: unless-stopped
     ports:
       - ${ELASTICSEARCH_PORT}:9200
+      - "9300:9300"
     volumes:
       - ./data/elastic/:/usr/share/elasticsearch/data
       - ./logs/elastic/:/usr/share/elasticsearch/logs
     networks:
       - project
-
 
 #  certbot:
 #    build:
@@ -297,6 +310,46 @@ services:
 #    networks:
 #      - project
 
+
+  chat:
+    build:
+      context: ./
+      dockerfile: config/docker/chat.Dockerfile
+      args:
+        VERSION: ${VERSION_PHP}
+    container_name: ${CONTAINER_CHAT}
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ}
+    ports:
+      - "8010:8010"
+      - "6001:6001"
+      - "10000:10000"
+      - "10001:10001"
+    volumes:
+      - ${PATH_CHAT}:/var/www
+      - ./scripts/php:/var/scripts
+      - ./config/php:/var/config/php
+    networks:
+      - project
+
+  centrifugo:
+    build:
+      context: ./
+      dockerfile: config/docker/centrifugo.Dockerfile
+      args:
+        VERSION: ${VERSION_CENTRIFUGO}
+    volumes:
+      - ./config/centrifugo:/centrifugo
+      - ./scripts/centrifugo:/var/scripts
+    container_name: ${CONTAINER_CENTRIFUGO}
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ}
+    ports:
+      - "3655:8000"
+    networks:
+      - project
 
 networks:
   project:

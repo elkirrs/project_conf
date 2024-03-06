@@ -8,7 +8,5 @@ WORKDIR /var/www
 RUN apk --update add --no-cache nano \
     make zip curl unzip
 
-RUN npm i -g @vue/cli
-
 ENTRYPOINT ["sh", "/var/scripts/node.sh"]
 CMD ["tail", "-f", "/dev/null"]
