@@ -3,15 +3,15 @@ services:
   reverse-proxy:
     build:
       context: ./
-      dockerfile: config/docker/reverse-proxy.Dockerfile
+      dockerfile: config/docker/traefic.Dockerfile
       args:
-        VERSION: ${VERSION_TRAEFIC}
-    container_name: ${CONTAINER_TRAEFIC}
+        VERSION: ${TRAEFIC_VERSION}
+    container_name: ${TRAEFIC_CONTAINER}
     restart: unless-stopped
     environment:
       TZ: ${TZ}
     ports:
-      - ${TRAEFIC_PORT_HTTP:-80}:80
+      - ${TRAEFIC_PORT_HTTP}:80
       - ${TRAEFIC_PORT_WEB}:8080
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -37,21 +37,21 @@ services:
       context: ./
       dockerfile: config/docker/nginx.Dockerfile
       args:
-        VERSION: ${VERSION_NGINX}
-    container_name: ${CONTAINER_SERVER}
+        VERSION: ${NGINX_VERSION}
+    container_name: ${NGINX_CONTAINER}
     restart: unless-stopped
     environment:
       TZ: ${TZ}
     ports:
-      - ${NGINX_PHP_PORT_HTTP}:80
-      - ${NGINX_PHP_PORT_HTTPS}:443
-#      - ${NGINX_JS_PORT}:3000
+#      - ${NGINX_PORT_HTTP}:80
+      - ${NGINX_PORT_HTTPS}:443
+      - ${NGINX_PORT_JS}:3000
     volumes:
       - ./config/nginx/sites-available:/etc/nginx/sites-available
       - ./config/nginx/conf.d:/etc/nginx/conf.d
       - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ${PATH_PHP_PROJECT}:/var/www/php
-      - ${PATH_JS_PROJECT}:/var/www/js
+      - ${PHP_WEB_PATH_PROJECT}:/var/www/php
+      - ${NODE_PATH_PROJECT}:/var/www/js
       - ./logs/nginx:/var/log/nginx
       - ./ssl:/etc/nginx/listen
       #      - ./certbot:/var/www/certbot
@@ -71,8 +71,8 @@ services:
       context: ./
       dockerfile: config/docker/php.Dockerfile
       args:
-        VERSION: ${VERSION_PHP}
-    container_name: ${CONTAINER_PHP}
+        VERSION: ${PHP_VERSION}
+    container_name: ${PHP_CONTAINER}
     restart: unless-stopped
     environment:
       TZ: ${TZ}
@@ -80,9 +80,9 @@ services:
       - "host.docker.internal:host-gateway"
     ports:
       - ${PHP_PORT}:9000
-      - ${SUPERVISOR_PORT}:9001
+#      - ${PHP_SUPERVISOR_PORT}:9001
     volumes:
-      - ${PATH_PHP_PROJECT}:/var/www/php
+      - ${PHP_WEB_PATH_PROJECT}:/var/www/php
       - ./config/supervisor:/var/config/supervisor
       - ./config/supervisor/conf.d:/etc/supervisor/conf.d
       - ./logs/supervisor:/var/log/supervisor
@@ -102,8 +102,8 @@ services:
       context: ./
       dockerfile: config/docker/postgres.Dockerfile
       args:
-        VERSION: ${VERSION_POSTGRES}
-    container_name: ${CONTAINER_POSTGRES}
+        VERSION: ${POSTGRES_VERSION}
+    container_name: ${POSTGRES_CONTAINER}
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -122,8 +122,8 @@ services:
       context: ./
       dockerfile: config/docker/rabbitmq.Dockerfile
       args:
-        VERSION: ${VERSION_RABBITMQ}
-    container_name: ${CONTAINER_RMQ}
+        VERSION: ${RMQ_VERSION}
+    container_name: ${RMQ_CONTAINER}
     restart: unless-stopped
     environment:
       TZ: ${TZ}
@@ -150,7 +150,9 @@ services:
     build:
       context: ./
       dockerfile: config/docker/buggregator.Dockerfile
-    container_name: ${CONTAINER_BUGGREGATOR}
+      args:
+        VERSION: ${BUGGREGATOR_VERSION}
+    container_name: ${BUGGREGATOR_CONTAINER}
     restart: unless-stopped
     environment:
       PERSISTENCE_DRIVER: db
@@ -177,18 +179,18 @@ services:
       context: ./
       dockerfile: config/docker/go.Dockerfile
       args:
-        VERSION: ${VERSION_GOLANG}
-    container_name: ${CONTAINER_GOLANG}
+        VERSION: ${GOLANG_VERSION}
+    container_name: ${GOLANG_CONTAINER}
     restart: unless-stopped
     environment:
       TZ: ${TZ}
     tty: true
     ports:
-      - ${GOLANG_API_PORT}:5462
-      - ${GOLANG_GRPC_PORT}:5463
-      - ${GOLANG_METRICS_PORT:-5464}:5464
+      - ${GOLANG_PORT_API}:5462
+      - ${GOLANG_PORT_GRPC}:5463
+      - ${GOLANG_PORT_METRICS}:5464
     volumes:
-      - ${PATH_GOLANG_PROJECT}:/var/www
+      - ${GOLANG_PATH_PROJECT}:/var/www
       - ./logs/golang:/var/log
       - ./scripts/go:/var/scripts
       - ./proto:/var/proto
@@ -200,8 +202,8 @@ services:
       context: ./
       dockerfile: config/docker/redis.Dockerfile
       args:
-        VERSION: ${VERSION_REDIS}
-    container_name: ${CONTAINER_REDIS}
+        VERSION: ${REDIS_VERSION}
+    container_name: ${REDIS_CONTAINER}
     restart: unless-stopped
     environment:
       TZ: ${TZ}
@@ -219,8 +221,8 @@ services:
       context: ./
       dockerfile: config/docker/node.Dockerfile
       args:
-        VERSION: ${VERSION_NODE}
-    container_name: ${CONTAINER_NODE}
+        VERSION: ${NODE_VERSION}
+    container_name: ${NODE_CONTAINER}
     tty: true
     environment:
       TZ: ${TZ}
@@ -228,7 +230,7 @@ services:
       - ${NODE_PORT_PREVIEW}:4173
     restart: unless-stopped
     volumes:
-      - ${PATH_JS_PROJECT}:/var/www
+      - ${NODE_PATH_PROJECT}:/var/www
       - ./scripts/node:/var/scripts
       - ./logs/node:/root/.npm/_logs
     labels:
@@ -244,8 +246,8 @@ services:
       context: ./
       dockerfile: config/docker/mongodb.Dockerfile
       args:
-        VERSION: ${VERSION_MONGODB}
-    container_name: ${CONTAINER_MONGODB}
+        VERSION: ${MONGODB_VERSION}
+    container_name: ${MONGODB_CONTAINER}
     restart: unless-stopped
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USERNAME}
@@ -265,8 +267,8 @@ services:
       context: ./
       dockerfile: config/docker/prometheus.Dockerfile
       args:
-        VERSION: ${VERSION_PROMETHEUS}
-    container_name: ${CONTAINER_PROMETHEUS}
+        VERSION: ${PROMETHEUS_VERSION}
+    container_name: ${PROMETHEUS_CONTAINER}
     restart: unless-stopped
     ports:
       - ${PROMETHEUS_PORT}:9090
@@ -280,8 +282,8 @@ services:
       context: ./
       dockerfile: config/docker/grafana.Dockerfile
       args:
-        VERSION: ${VERSION_GRAFANA}
-    container_name: ${CONTAINER_GRAFANA}
+        VERSION: ${GRAFANA_VERSION}
+    container_name: ${GRAFANA_CONTAINER}
     restart: unless-stopped
     environment:
       - GF_SECURITY_ADMIN_USER=admin
@@ -385,8 +387,8 @@ services:
       context: ./
       dockerfile: config/docker/chat.Dockerfile
       args:
-        VERSION: ${VERSION_PHP}
-    container_name: ${CONTAINER_CHAT}
+        VERSION: ${CHAT_PHP_VERSION}
+    container_name: ${CHAT_CONTAINER}
     restart: unless-stopped
     environment:
       TZ: ${TZ}
@@ -396,7 +398,7 @@ services:
       - "10000:10000"
       - "10001:10001"
     volumes:
-      - ${PATH_CHAT}:/var/www
+      - ${CHAT_PATH}:/var/www
       - ./scripts/php:/var/scripts
       - ./config/php:/var/config/php
     networks:
@@ -407,16 +409,16 @@ services:
       context: ./
       dockerfile: config/docker/centrifugo.Dockerfile
       args:
-        VERSION: ${VERSION_CENTRIFUGO}
+        VERSION: ${CENTRIFUGO_VERSION}
     volumes:
       - ./config/centrifugo:/centrifugo
       - ./scripts/centrifugo:/var/scripts
-    container_name: ${CONTAINER_CENTRIFUGO}
+    container_name: ${CENTRIFUGO_CONTAINER}
     restart: unless-stopped
     environment:
       TZ: ${TZ}
     ports:
-      - "3655:8000"
+      - ${CENTRIFUGO_PORT}:8000
     networks:
       - project
 
@@ -425,8 +427,8 @@ services:
       context: ./
       dockerfile: 'config/docker/swagger.Dockerfile'
       args:
-        VERSION: ${VERSION_SWAGGER}
-    container_name: ${CONTAINER_SWAGGER}
+        VERSION: ${SWAGGER_VERSION}
+    container_name: ${SWAGGER_CONTAINER}
     restart: unless-stopped
     environment:
       SWAGGER_JSON: /swagger/swagger.json
@@ -440,31 +442,31 @@ services:
     networks:
       - project
 
-  collector:
-    build:
-      context: ./
-      dockerfile: 'config/docker/otel.Dockerfile'
-    container_name: ${CONTAINER_COLLECTOR}
-    restart: unless-stopped
-    command: [ "--config=/etc/collector-config.yml" ]
-    volumes:
-      - ./config/otel/collector-config.yml:/etc/collector-config.yml
-    networks:
-      - project
+  #  collector:
+  #    build:
+  #      context: ./
+  #      dockerfile: 'config/docker/otel.Dockerfile'
+  #    container_name: ${CONTAINER_COLLECTOR}
+  #    restart: unless-stopped
+  #    command: [ "--config=/etc/collector-config.yml" ]
+  #    volumes:
+  #      - ./config/otel/collector-config.yml:/etc/collector-config.yml
+  #    networks:
+  #      - project
 
   temporal:
     build:
       context: ./
       dockerfile: 'config/docker/temporal.Dockerfile'
       args:
-        VERSION: ${VERSION_TEMPORAL}
-    container_name: ${CONTAINER_TEMPORAL}
+        VERSION: ${TEMPORAL_VERSION}
+    container_name: ${TEMPORAL_CONTAINER}
     environment:
       DB: postgres12
       DB_PORT: ${TEMPORAL_DB_PORT}
       POSTGRES_USER: ${TEMPORAL_DB_USER}
       POSTGRES_PWD: ${TEMPORAL_DB_PASS}
-      POSTGRES_SEEDS: postgres
+      POSTGRES_SEEDS: ${TEMPORAL_DB_SEEDS}
       DYNAMIC_CONFIG_FILE_PATH: config/dynamicconfig/development-sql.yml
     volumes:
       - ./config/temporal:/etc/temporal/config/dynamicconfig
@@ -477,11 +479,11 @@ services:
       context: ./
       dockerfile: 'config/docker/temporal-ui.Dockerfile'
       args:
-        VERSION: ${VERSION_TEMPORAL_UI}
-    container_name: ${CONTAINER_TEMPORAL_UI}
+        VERSION: ${TEMPORAL_UI_VERSION}
+    container_name: ${TEMPORAL_UI_CONTAINER}
     environment:
-      TEMPORAL_ADDRESS: temporal:7233
-      TEMPORAL_CORS_ORIGINS: http://localhost:3000
+      TEMPORAL_ADDRESS: ${TEMPORAL_UI_ADDRESS}
+      TEMPORAL_CORS_ORIGINS: ${TEMPORAL_UI_CORS_ORIGIN}
     restart: unless-stopped
     networks:
       - project
@@ -490,6 +492,31 @@ services:
       - "traefik.http.routers.temporal.entrypoints=web"
       - "traefik.http.routers.temporal.rule=Host(`temporal.localhost`)"
       - "traefik.http.services.temporal.loadbalancer.server.port=8080"
+
+  minio:
+    build:
+      context: ./
+      dockerfile: 'config/docker/minio.Dockerfile'
+      args:
+        VERSION: ${MINIO_VERSION}
+    container_name: ${MINIO_CONTAINER}
+    command: server --console-address ":9001" /data/
+    environment:
+      MINIO_ROOT_USER: ${MINIO_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD}
+    ports:
+#      - ${MINIO_LIVE_PORT}:9000
+      - ${MINIO_PORT}:9001
+    volumes:
+      - ./data/minio:/data
+    restart: unless-stopped
+    networks:
+      - project
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.minio.entrypoints=web"
+      - "traefik.http.routers.minio.rule=Host(`minio.localhost`)"
+      - "traefik.http.services.minio.loadbalancer.server.port=9000"
 
 networks:
   project:

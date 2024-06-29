@@ -1,1 +1,3 @@
-FROM ghcr.io/buggregator/server:latest
+ARG VERSION
+
+FROM ghcr.io/buggregator/server:$VERSION

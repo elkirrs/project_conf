@@ -4,27 +4,27 @@ include .env
 # Install app
 .PHONY: laravel_i
 laravel_i: #Create new Laravel project. Last version
-	@docker exec -it $(CONTAINER_PHP) composer create-project --prefer-dist laravel/laravel .
+	@docker exec -it $(PHP_CONTAINER) composer create-project --prefer-dist laravel/laravel .
 
 .PHONY: chat_i
 chat_i: #Create new chat project. Last version
-	@docker exec -it $(CONTAINER_CHAT) composer create-project spiral/app .
+	@docker exec -it $(CHAT_CONTAINER) composer create-project spiral/app .
 
 .PHONY: vue_i
 vue_i: #Create new vue js project
-	@docker exec -it $(CONTAINER_NODE) npm init vuetify
+	@docker exec -it $(NODE_CONTAINER) npm init vuetify
 
 .PHONY: npm_i
 npm_i: #Install js dependency
-	@docker exec -it $(CONTAINER_NODE) npm install
+	@docker exec -it $(NODE_CONTAINER) npm install
 
 .PHONY: composer_i
 composer_i: #Install php dependency
-	@docker exec -it $(CONTAINER_PHP) composer install
+	@docker exec -it $(PHP_CONTAINER) composer install
 
 .PHONY: composer_du
 composer_du: # Composer dump autoload
-	@docker exec -it $(CONTAINER_PHP) compose du
+	@docker exec -it $(PHP_CONTAINER) compose du
 #-----------------------------------------------------------------------------------------------------------------------
 
 
@@ -58,70 +58,70 @@ restart: #restart docker containers @docker-compose restart
 #Connect container
 .PHONY: connect_php
 connect_php: #Connect to php container
-	@docker exec -it $(CONTAINER_PHP) $(SHELL)
+	@docker exec -it $(PHP_CONTAINER) $(SHELL)
 
 .PHONY: connect_psql
 connect_psql: #Connect to DB container
-	@docker exec -it $(CONTAINER_POSTGRES) $(SHELL)
+	@docker exec -it $(POSTGRES_CONTAINER) $(SHELL)
 
 .PHONY: connect_rmq
 connect_rmq: #Connect to rabbitmq container
-	@docker exec -it $(CONTAINER_RMQ) $(SHELL)
+	@docker exec -it $(RMQ_CONTAINER) $(SHELL)
 
 .PHONY: connect_server
 connect_server: #Connect to server container
-	@docker exec -it $(CONTAINER_SERVER) $(SHELL)
+	@docker exec -it $(NGINX_CONTAINER) $(SHELL)
 
 .PHONY: connect_go
 connect_go: #Connect to golang container
-	@docker exec -it $(CONTAINER_GOLANG) $(SHELL)
+	@docker exec -it $(GOLANG_CONTAINER) $(SHELL)
 
 .PHONY: connect_node
 connect_node: #Connect to node container
-	@docker exec -it $(CONTAINER_NODE) $(SHELL)
+	@docker exec -it $(NODE_CONTAINER) $(SHELL)
 
 .PHONY: connect_mongo
 connect_mongo: #Connect to mongodb container
-	@docker exec -it $(CONTAINER_MONGODB) $(SHELL)
+	@docker exec -it $(MONGODB_CONTAINER) $(SHELL)
 
 .PHONY: connect_chat
 connect_chat: #Connect to chat container
-	@docker exec -it $(CONTAINER_CHAT) $(SHELL)
+	@docker exec -it $(CHAT_CONTAINER) $(SHELL)
 #-----------------------------------------------------------------------------------------------------------------------
 
 
 #Command for build and development
 .PHONY: npm_build
 npm_build: #build js app
-	@docker exec -it $(CONTAINER_NODE) npm run build
+	@docker exec -it $(NODE_CONTAINER) npm run build
 
 .PHONY: npm_dev
 npm_dev: #Run development js server
-	@docker exec -it $(CONTAINER_NODE) npm run dev
+	@docker exec -it $(NODE_CONTAINER) npm run dev
 
 .PHONY: go_build
 go_build: #build app go
-	@docker exec -i $(CONTAINER_GOLANG) go build -o ./bin/sso ./cmd/sso/main.go
+	@docker exec -i $(GOLANG_CONTAINER) go build -o ./bin/sso ./cmd/sso/main.go
 
 .PHONY: go_test
 go_test: #run the tests app go
-	@docker exec -it $(CONTAINER_GOLANG) go test -v -race -timeout 30s ./...
+	@docker exec -it $(GOLANG_CONTAINER) go test -v -race -timeout 30s ./...
 
 .PHONY: go
 go: #run the compiled app go
-	@docker exec -it $(CONTAINER_GOLANG) ./bin/sso
+	@docker exec -it $(GOLANG_CONTAINER) ./bin/sso
 
 .PHONY: go_dev
 go_dev: #run dev app go
-	@docker exec -i $(CONTAINER_GOLANG) go run ./cmd/sso/main.go
+	@docker exec -i $(GOLANG_CONTAINER) go run ./cmd/sso/main.go
 
 .PHONY: grpc_go
 grpc_go: # build grpc-server go files
-	@docker exec -it $(CONTAINER_GOLANG) sh /var/scripts/proto.sh
+	@docker exec -it $(GOLANG_CONTAINER) sh /var/scripts/proto.sh
 
 .PHONY: grpc_php
 grpc_php: #build grpc-server php files
-	@docker exec -it $(CONTAINER_PHP) sh /var/scripts/proto.sh
+	@docker exec -it $(PHP_CONTAINER) sh /var/scripts/proto.sh
 
 .PHONY: grpc_build
 grpc_build: grpc_go grpc_php
@@ -131,11 +131,11 @@ grpc_build: grpc_go grpc_php
 #Other command
 .PHONY: php_clean
 php_clean: #Clean cache and config
-	@docker exec -it $(CONTAINER_PHP) php artisan config:cache
+	@docker exec -it $(PHP_CONTAINER) php artisan config:cache
 
 .PHONY: php_key
 php_key: #generate APP key
-	@docker exec -it $(CONTAINER_PHP) php artisan key:generate
+	@docker exec -it $(PHP_CONTAINER) php artisan key:generate
 
 .PHONY: own
 own: #Set ownership
@@ -147,11 +147,11 @@ show: #show docker's containers
 
 .PHONY: elastic_token
 elastic_token: #Generate elastic token
-	@docker exec -it $(CONTAINER_ELASTICSEARCH) bin/elasticsearch-create-enrollment-token --scope kibana
+	@docker exec -it $(ELASTICSEARCH_CONTAINER) bin/elasticsearch-create-enrollment-token --scope kibana
 
 .PHONY: kibana_code
 kibana_code: #Generate elastic token
-	@docker exec -it $(CONTAINER_KIBANA) bin/kibana-verification-code
+	@docker exec -it $(KIBANA_CONTAINER) bin/kibana-verification-code
 
 
 .PHONY: site_disable
@@ -161,8 +161,8 @@ site_disable: #Site disable
  	fi
 
 	@if [ ! -z ${name} ]; then \
-		docker exec -t $(CONTAINER_SERVER) mv /etc/nginx/conf.d/${name}.conf /etc/nginx/sites-available/${name}.conf; \
-		docker restart $(CONTAINER_SERVER) ; \
+		docker exec -t $(NGINX_CONTAINER) mv /etc/nginx/conf.d/${name}.conf /etc/nginx/sites-available/${name}.conf; \
+		docker restart $(NGINX_CONTAINER) ; \
 	fi
 
 .PHONY: site_enable
@@ -172,8 +172,8 @@ site_enable: #Site enable
  	fi
 
 	@if [ ! -z ${name} ]; then \
-		docker exec -t $(CONTAINER_SERVER) mv /etc/nginx/sites-available/${name}.conf /etc/nginx/conf.d/${name}.conf; \
-		docker restart $(CONTAINER_SERVER); \
+		docker exec -t $(NGINX_CONTAINER) mv /etc/nginx/sites-available/${name}.conf /etc/nginx/conf.d/${name}.conf; \
+		docker restart $(NGINX_CONTAINER); \
 	fi
 
 .PHONY: dump
@@ -193,7 +193,7 @@ dump: #Dump DB
 
 	@if [ ! -z ${name} ]; then \
 		tar -xvf ./dump/${name}.tar.gz; \
-		docker exec -i $(CONTAINER_POSTGRES) psql $(DB_NAME) < ${name}.sql; \
+		docker exec -i $(POSTGRES_CONTAINER) psql $(DB_NAME) < ${name}.sql; \
 	fi
 
 	@if [ -f ${name}.sql ]; then \
