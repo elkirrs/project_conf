@@ -1,0 +1,3 @@
+ARG VERSION
+
+FROM traefik:$VERSION

@@ -1,0 +1,5 @@
+ARG VERSION
+
+FROM swaggerapi/swagger-ui:$VERSION
+
+EXPOSE 8088

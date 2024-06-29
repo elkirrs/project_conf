@@ -8,7 +8,7 @@ fi
 
 php-fpm -D
 
-if [ -d /var/www/vendor ]; then
+if [ -d /var/www/php/vendor ]; then
 
     if [ -f /var/config/supervisor/supervisord.conf ]; then
       echo "The supervisor config file was found and moved"
@@ -24,20 +24,20 @@ if [ -d /var/www/vendor ]; then
     protoc --version
     composer self-update
 
-    if [ -f /var/www/artisan ]; then
+    if [ -f /var/www/php/artisan ]; then
       echo "PHP artisan file was found"
-      chmod 777 -Rf /var/www/storage
+      chmod 777 -Rf /var/www/php/storage
 
       if [ -d /var/logs/ ]; then
         chmod 777 -Rf /var/logs
       fi
 
-      php /var/www/artisan config:cache
-      php /var/www/artisan config:clear
+      php /var/www/php/artisan config:cache
+      php /var/www/php/artisan config:clear
 
     fi
 
-    if [ -f /var/www/composer.json ]; then
+    if [ -f /var/www/php/composer.json ]; then
       composer du
     fi
 fi

@@ -1,6 +1,36 @@
-version: '3.8'
-
 services:
+
+  reverse-proxy:
+    build:
+      context: ./
+      dockerfile: config/docker/reverse-proxy.Dockerfile
+      args:
+        VERSION: ${VERSION_TRAEFIC}
+    container_name: ${CONTAINER_TRAEFIC}
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ}
+    ports:
+      - ${TRAEFIC_PORT_HTTP:-80}:80
+      - ${TRAEFIC_PORT_WEB}:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command:
+      - "--accesslog"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--providers.file.directory=/configuration/"
+      - "--providers.file.watch=true"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.reverse-proxy.entrypoints=web"
+      - "traefik.http.routers.reverse-proxy.rule=Host(`traefic.localhost`)"
+      - "traefik.http.services.reverse-proxy.loadbalancer.server.port=8080"
+    networks:
+      - project
 
   nginx:
     build:
@@ -15,7 +45,7 @@ services:
     ports:
       - ${NGINX_PHP_PORT_HTTP}:80
       - ${NGINX_PHP_PORT_HTTPS}:443
-      - ${NGINX_JS_PORT}:3000
+#      - ${NGINX_JS_PORT}:3000
     volumes:
       - ./config/nginx/sites-available:/etc/nginx/sites-available
       - ./config/nginx/conf.d:/etc/nginx/conf.d
@@ -24,11 +54,17 @@ services:
       - ${PATH_JS_PROJECT}:/var/www/js
       - ./logs/nginx:/var/log/nginx
       - ./ssl:/etc/nginx/listen
-#      - ./certbot:/var/www/certbot
-#      - ./certbot/conf:/etc/nginx/listen
+      #      - ./certbot:/var/www/certbot
+      #      - ./certbot/conf:/etc/nginx/listen
       - ./scripts/nginx:/var/scripts
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nginx.entrypoints=web"
+      - "traefik.http.routers.nginx.rule=Host(`dev.localhost`)"
+      - "traefik.http.services.nginx.loadbalancer.server.port=80"
     networks:
       - project
+
 
   php:
     build:
@@ -46,13 +82,18 @@ services:
       - ${PHP_PORT}:9000
       - ${SUPERVISOR_PORT}:9001
     volumes:
-      - ${PATH_PHP_PROJECT}:/var/www
+      - ${PATH_PHP_PROJECT}:/var/www/php
       - ./config/supervisor:/var/config/supervisor
       - ./config/supervisor/conf.d:/etc/supervisor/conf.d
       - ./logs/supervisor:/var/log/supervisor
       - ./scripts/php:/var/scripts
       - ./config/php:/var/config/php
       - ./proto:/var/proto
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.php.entrypoints=web"
+      - "traefik.http.routers.php.rule=Host(`supervisor.localhost`)"
+      - "traefik.http.services.php.loadbalancer.server.port=9001"
     networks:
       - project
 
@@ -93,25 +134,41 @@ services:
       RABBITMQ_LOGS: /var/log/rabbitmq/log/rabbitmq.log
     ports:
       - ${RMQ_PORT_CONNECT}:5672
-      - ${RMQ_PORT_URI}:15672
     volumes:
       - ./logs/rabbitmq:/var/log/rabbitmq
       - ./data/rabbitmq:/var/lib/rabbitmq
     #- ./config/rabbitmq/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.rabbitmq.entrypoints=web"
+      - "traefik.http.routers.rabbitmq.rule=Host(`rabbit.localhost`)"
+      - "traefik.http.services.rabbitmq.loadbalancer.server.port=15672"
     networks:
       - project
 
-  mail:
+  buggregator:
     build:
       context: ./
-      dockerfile: config/docker/mail.Dockerfile
-    container_name: ${CONTAINER_MAIL}
+      dockerfile: config/docker/buggregator.Dockerfile
+    container_name: ${CONTAINER_BUGGREGATOR}
     restart: unless-stopped
     environment:
-      TZ: ${TZ}
+      PERSISTENCE_DRIVER: db
+      DB_DRIVER: pgsql
+      DB_DATABASE: ${BUGGREGATOR_DB_NAME}
+      DB_HOST: postgres
+      DB_PORT: POSTGRES_PORT
+      DB_USERNAME: ${BUGGREGATOR_DB_USER}
+      DB_PASSWORD: ${BUGGREGATOR_DB_PASS}
     ports:
-      - ${MAIL_PORT_SMTP}:1025
-      - ${MAIL_PORT_HTTP}:8025
+      - ${BUGGREGATOR_PORT_SMTP}:1025
+      - ${BUGGREGATOR_PORT_DUMPER}:9912
+      - ${BUGGREGATOR_PORT_LOGGING}:9913
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.buggregator.entrypoints=web"
+      - "traefik.http.routers.buggregator.rule=Host(`bug.localhost`)"
+      - "traefik.http.services.buggregator.loadbalancer.server.port=8000"
     networks:
       - project
 
@@ -127,7 +184,9 @@ services:
       TZ: ${TZ}
     tty: true
     ports:
-      - ${GOLANG_PORT}:5462
+      - ${GOLANG_API_PORT}:5462
+      - ${GOLANG_GRPC_PORT}:5463
+      - ${GOLANG_METRICS_PORT:-5464}:5464
     volumes:
       - ${PATH_GOLANG_PROJECT}:/var/www
       - ./logs/golang:/var/log
@@ -166,13 +225,17 @@ services:
     environment:
       TZ: ${TZ}
     ports:
-      - ${NODE_PORT_DEV}:8080
       - ${NODE_PORT_PREVIEW}:4173
     restart: unless-stopped
     volumes:
       - ${PATH_JS_PROJECT}:/var/www
       - ./scripts/node:/var/scripts
       - ./logs/node:/root/.npm/_logs
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.node.entrypoints=web"
+      - "traefik.http.routers.node.rule=Host(`web.localhost`)"
+      - "traefik.http.services.node.loadbalancer.server.port=8080"
     networks:
       - project
 
@@ -207,53 +270,10 @@ services:
     restart: unless-stopped
     ports:
       - ${PROMETHEUS_PORT}:9090
-    environment:
-      SERVER_NAME: ${KIBANA_SERVER_NAME}
-      ELASTICSEARCH_HOSTS: ${ELASTICSEARCH_HOST}
-#    volumes:
-#      - ./config/prometheus:/etc/prometheus
+    volumes:
+      - ./config/prometheus:/etc/prometheus
     networks:
       - project
-
-  logstash:
-    build:
-      context: ./
-      dockerfile: config/docker/logstash.Dockerfile
-      args:
-        VERSION: ${VERSION_LOGSTASH}
-    container_name: ${CONTAINER_LOGSTASH}
-    restart: unless-stopped
-    environment:
-      discovery.seed_hosts: logstash
-      LS_JAVA_OPTS: -Xmx1g -Xms1g
-      LOGSTASH_INTERNAL_PASSWORD: 'password'
-    ports:
-      - "5001:5000/tcp"
-      - "5001:5000/udp"
-      - "5044:5044"
-      - "9600:9600"
-    volumes:
-      - ./config/logstash/:/var/config/logstash
-      - ./scripts/logstash:/var/scripts
-      - ./logs/logstash:/usr/share/logstash/logs
-
-  kibana:
-    build:
-      context: ./
-      dockerfile: config/docker/kibana.Dockerfile
-      args:
-        VERSION: ${VERSION_KIBANA}
-    container_name: ${CONTAINER_KIBANA}
-    restart: unless-stopped
-    ports:
-      - ${KIBANA_PORT}:5601
-    volumes:
-      - ./data/kibana:/usr/share/kibana/data
-    environment:
-      ELASTICSEARCH_HOSTS: ${ELASTICSEARCH_HOST}
-      KIBANA_SYSTEM_PASSWORD: 'password'
-    networks:
-     - project
 
   grafana:
     build:
@@ -263,53 +283,102 @@ services:
         VERSION: ${VERSION_GRAFANA}
     container_name: ${CONTAINER_GRAFANA}
     restart: unless-stopped
-    ports:
-      - ${GRAFANA_PORT}:3000
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
       - ./data/grafana:/var/lib/grafana
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.entrypoints=web"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.localhost`)"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
     networks:
       - project
 
-  elastic:
-    build:
-      context: ./
-      dockerfile: config/docker/elastic.Dockerfile
-      args:
-        VERSION: ${VERSION_ELASTICSEARCH}
-    environment:
-      discovery.type: single-node
-      xpack.security.enabled: false
-      xpack.license.self_generated.type: basic
-#      xpack.security.enrollment.enabled: true
-      LS_JAVA_OPTS: -Xmx1g -Xms1g
-      ELASTIC_USERNAME: elastic
-      ELASTIC_PASSWORD: password
-    container_name: ${CONTAINER_ELASTICSEARCH}
-    restart: unless-stopped
-    ports:
-      - ${ELASTICSEARCH_PORT}:9200
-      - "9300:9300"
-    volumes:
-      - ./data/elastic/:/usr/share/elasticsearch/data
-      - ./logs/elastic/:/usr/share/elasticsearch/logs
-    networks:
-      - project
+  #  logstash:
+  #    build:
+  #      context: ./
+  #      dockerfile: config/docker/logstash.Dockerfile
+  #      args:
+  #        VERSION: ${VERSION_LOGSTASH}
+  #    container_name: ${CONTAINER_LOGSTASH}
+  #    restart: unless-stopped
+  #    environment:
+  #      discovery.seed_hosts: logstash
+  #      LS_JAVA_OPTS: -Xmx1g -Xms1g
+  #      LOGSTASH_INTERNAL_PASSWORD: 'password'
+  #    ports:
+  #      - "5001:5000/tcp"
+  #      - "5001:5000/udp"
+  #      - "5044:5044"
+  #      - "9600:9600"
+  #    volumes:
+  #      - ./config/logstash/:/var/config/logstash
+  #      - ./scripts/logstash:/var/scripts
+  #      - ./logs/logstash:/usr/share/logstash/logs
 
-#  certbot:
-#    build:
-#      context: ./
-#      dockerfile: config/docker/certbot.Dockerfile
-#      args:
-#        VERSION: ${VERSION_CERTBOT}
-#    container_name: ${CONTAINER_CERTBOT}
-#    restart: unless-stopped
-#    volumes:
-#      - ./certbot/:/var/www/certbot/:rw
-#      - ./certbot/conf/:/etc/letsencrypt/:rw
-#      - ./logs/certbot:/var/log/letsencrypt
-#    networks:
-#      - project
+  #  kibana:
+  #    build:
+  #      context: ./
+  #      dockerfile: config/docker/kibana.Dockerfile
+  #      args:
+  #        VERSION: ${VERSION_KIBANA}
+  #    container_name: ${CONTAINER_KIBANA}
+  #    restart: unless-stopped
+  #    ports:
+  #      - ${KIBANA_PORT}:5601
+  #    volumes:
+  #      - ./data/kibana:/usr/share/kibana/data
+  #    environment:
+  #      ELASTICSEARCH_HOSTS: ${ELASTICSEARCH_HOST}
+  #      KIBANA_SYSTEM_PASSWORD: 'password'
+  #    networks:
+  #     - project
 
+
+
+  #  elastic:
+  #    build:
+  #      context: ./
+  #      dockerfile: config/docker/elastic.Dockerfile
+  #      args:
+  #        VERSION: ${VERSION_ELASTICSEARCH}
+  #    environment:
+  #      discovery.type: single-node
+  #      xpack.security.enabled: false
+  #      xpack.license.self_generated.type: basic
+  ##      xpack.security.enrollment.enabled: true
+  #      LS_JAVA_OPTS: -Xmx1g -Xms1g
+  #      ELASTIC_USERNAME: elastic
+  #      ELASTIC_PASSWORD: password
+  #    container_name: ${CONTAINER_ELASTICSEARCH}
+  #    restart: unless-stopped
+  #    ports:
+  #      - ${ELASTICSEARCH_PORT}:9200
+  #      - "9300:9300"
+  #    volumes:
+  #      - ./data/elastic/:/usr/share/elasticsearch/data
+  #      - ./logs/elastic/:/usr/share/elasticsearch/logs
+  #    networks:
+  #      - project
+  #    logging:
+  #      driver: none
+
+  #  certbot:
+  #    build:
+  #      context: ./
+  #      dockerfile: config/docker/certbot.Dockerfile
+  #      args:
+  #        VERSION: ${VERSION_CERTBOT}
+  #    container_name: ${CONTAINER_CERTBOT}
+  #    restart: unless-stopped
+  #    volumes:
+  #      - ./certbot/:/var/www/certbot/:rw
+  #      - ./certbot/conf/:/etc/letsencrypt/:rw
+  #      - ./logs/certbot:/var/log/letsencrypt
+  #    networks:
+  #      - project
 
   chat:
     build:
@@ -351,6 +420,80 @@ services:
     networks:
       - project
 
+  swagger:
+    build:
+      context: ./
+      dockerfile: 'config/docker/swagger.Dockerfile'
+      args:
+        VERSION: ${VERSION_SWAGGER}
+    container_name: ${CONTAINER_SWAGGER}
+    restart: unless-stopped
+    environment:
+      SWAGGER_JSON: /swagger/swagger.json
+    volumes:
+      - ./swagger:/swagger
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.swagger.entrypoints=web"
+      - "traefik.http.routers.swagger.rule=Host(`docs.localhost`)"
+      - "traefik.http.services.swagger.loadbalancer.server.port=8080"
+    networks:
+      - project
+
+  collector:
+    build:
+      context: ./
+      dockerfile: 'config/docker/otel.Dockerfile'
+    container_name: ${CONTAINER_COLLECTOR}
+    restart: unless-stopped
+    command: [ "--config=/etc/collector-config.yml" ]
+    volumes:
+      - ./config/otel/collector-config.yml:/etc/collector-config.yml
+    networks:
+      - project
+
+  temporal:
+    build:
+      context: ./
+      dockerfile: 'config/docker/temporal.Dockerfile'
+      args:
+        VERSION: ${VERSION_TEMPORAL}
+    container_name: ${CONTAINER_TEMPORAL}
+    environment:
+      DB: postgres12
+      DB_PORT: ${TEMPORAL_DB_PORT}
+      POSTGRES_USER: ${TEMPORAL_DB_USER}
+      POSTGRES_PWD: ${TEMPORAL_DB_PASS}
+      POSTGRES_SEEDS: postgres
+      DYNAMIC_CONFIG_FILE_PATH: config/dynamicconfig/development-sql.yml
+    volumes:
+      - ./config/temporal:/etc/temporal/config/dynamicconfig
+    restart: unless-stopped
+    networks:
+      - project
+
+  temporal-ui:
+    build:
+      context: ./
+      dockerfile: 'config/docker/temporal-ui.Dockerfile'
+      args:
+        VERSION: ${VERSION_TEMPORAL_UI}
+    container_name: ${CONTAINER_TEMPORAL_UI}
+    environment:
+      TEMPORAL_ADDRESS: temporal:7233
+      TEMPORAL_CORS_ORIGINS: http://localhost:3000
+    restart: unless-stopped
+    networks:
+      - project
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.temporal.entrypoints=web"
+      - "traefik.http.routers.temporal.rule=Host(`temporal.localhost`)"
+      - "traefik.http.services.temporal.loadbalancer.server.port=8080"
+
 networks:
   project:
-    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.0.13.0/24

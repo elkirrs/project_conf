@@ -112,11 +112,11 @@ go: #run the compiled app go
 	@docker exec -it $(CONTAINER_GOLANG) ./main
 
 .PHONY: grpc_go
-grpc_go: # build grpc go files
+grpc_go: # build grpc-server go files
 	@docker exec -it $(CONTAINER_GOLANG) sh /var/scripts/proto.sh
 
 .PHONY: grpc_php
-grpc_php: #build grpc php files
+grpc_php: #build grpc-server php files
 	@docker exec -it $(CONTAINER_PHP) sh /var/scripts/proto.sh
 
 .PHONY: grpc_build
@@ -224,14 +224,14 @@ help: #help to command from makefile
 	  connect_server: =\> Connect to server container \\n\\r \
 	  connect_go: =\> Connect to golang container \\n\\r \
 	  connect_node: =\> Connect to node container \\n\\r \
-	  connect_mongo: =\> Connect to mongodb container \\n\\r
+	  connect_mongo: =\> Connect to mongodb container \\n\\r \
 	  connect_chat: =\> Connect to chat container \\n\\r
 
 	@echo BUILD AND DEVELOPMENT \\n\\r \
 	  npm_build: =\> Build js app \\n\\r \
 	  npm_dev: =\> Run development js server \\n\\r \
 	  go_build: =\> Build app go \\n\\r \
-	  go_test: =\> Run the test app go \\n\\r \
+	  go_test: =\> Run the tests app go \\n\\r \
 	  go: =\> Run the compiled app go \\n\\r \
 	  grpc_go: =\> Build grpc go files \\n\\r \
 	  grpc_php: =\> Build grpc php files \\n\\r \
