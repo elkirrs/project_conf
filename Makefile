@@ -101,7 +101,7 @@ npm_dev: #Run development js server
 
 .PHONY: go_build
 go_build: #build app go
-	@docker exec -it $(CONTAINER_GOLANG) go build -v ./cmd/main.go
+	@docker exec -i $(CONTAINER_GOLANG) go build -o ./bin/sso ./cmd/sso/main.go
 
 .PHONY: go_test
 go_test: #run the tests app go
@@ -109,7 +109,11 @@ go_test: #run the tests app go
 
 .PHONY: go
 go: #run the compiled app go
-	@docker exec -it $(CONTAINER_GOLANG) ./main
+	@docker exec -it $(CONTAINER_GOLANG) ./bin/sso
+
+.PHONY: go_dev
+go_dev: #run dev app go
+	@docker exec -i $(CONTAINER_GOLANG) go run ./cmd/sso/main.go
 
 .PHONY: grpc_go
 grpc_go: # build grpc-server go files
@@ -231,6 +235,7 @@ help: #help to command from makefile
 	  npm_build: =\> Build js app \\n\\r \
 	  npm_dev: =\> Run development js server \\n\\r \
 	  go_build: =\> Build app go \\n\\r \
+	  go_dev: =\> Run dev app go \\n\\r \
 	  go_test: =\> Run the tests app go \\n\\r \
 	  go: =\> Run the compiled app go \\n\\r \
 	  grpc_go: =\> Build grpc go files \\n\\r \
