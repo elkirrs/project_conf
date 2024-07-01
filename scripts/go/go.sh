@@ -8,14 +8,11 @@ fi
 
 chmod 777 -Rf /var/log
 
-if [ ! -f /var/www/sso/go.mod ]; then
+if [ ! -f /var/www/sso/cmd/sso/go.mod ]; then
   cd /var/www/sso
   go mod init app
 fi
 
-#if [ -f /var/www/cmd/main.go ]; then
-#  go build -v ./cmd/main.go
-#fi
 
 if [ -d /var/proto ] && [ -f /var/scripts/proto.sh ]; then
   sh /var/scripts/proto.sh

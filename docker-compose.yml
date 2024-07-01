@@ -298,74 +298,70 @@ services:
     networks:
       - project
 
-  #  logstash:
-  #    build:
-  #      context: ./
-  #      dockerfile: config/docker/logstash.Dockerfile
-  #      args:
-  #        VERSION: ${VERSION_LOGSTASH}
-  #    container_name: ${CONTAINER_LOGSTASH}
-  #    restart: unless-stopped
-  #    environment:
-  #      discovery.seed_hosts: logstash
-  #      LS_JAVA_OPTS: -Xmx1g -Xms1g
-  #      LOGSTASH_INTERNAL_PASSWORD: 'password'
-  #    ports:
-  #      - "5001:5000/tcp"
-  #      - "5001:5000/udp"
-  #      - "5044:5044"
-  #      - "9600:9600"
-  #    volumes:
-  #      - ./config/logstash/:/var/config/logstash
-  #      - ./scripts/logstash:/var/scripts
-  #      - ./logs/logstash:/usr/share/logstash/logs
+  logstash:
+    build:
+      context: ./
+      dockerfile: config/docker/logstash.Dockerfile
+      args:
+        VERSION: ${LOGSTASH_VERSION}
+    container_name: ${LOGSTASH_CONTAINER}
+    restart: unless-stopped
+    environment:
+      discovery.seed_hosts: logstash
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    ports:
+      - "5001:5000/tcp"
+      - "5001:5000/udp"
+      - "6000:6000"
+      - "9600:9600"
+      - "5044:5044"
+    volumes:
+      - ./config/logstash/config/:/var/config/logstash
+      - ./scripts/logstash:/var/scripts
+      - ./logs/logstash/:/usr/share/logstash/logs/
+      - ./config/logstash/pipeline/:/usr/share/logstash/pipeline/
+    networks:
+      - project
 
-  #  kibana:
-  #    build:
-  #      context: ./
-  #      dockerfile: config/docker/kibana.Dockerfile
-  #      args:
-  #        VERSION: ${VERSION_KIBANA}
-  #    container_name: ${CONTAINER_KIBANA}
-  #    restart: unless-stopped
-  #    ports:
-  #      - ${KIBANA_PORT}:5601
-  #    volumes:
-  #      - ./data/kibana:/usr/share/kibana/data
-  #    environment:
-  #      ELASTICSEARCH_HOSTS: ${ELASTICSEARCH_HOST}
-  #      KIBANA_SYSTEM_PASSWORD: 'password'
-  #    networks:
-  #     - project
+  kibana:
+    build:
+      context: ./
+      dockerfile: config/docker/kibana.Dockerfile
+      args:
+        VERSION: ${KIBANA_VERSION}
+    container_name: ${KIBANA_CONTAINER}
+    restart: unless-stopped
+    ports:
+      - ${KIBANA_PORT}:5601
+    volumes:
+      - ./data/kibana:/usr/share/kibana/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.kibana.entrypoints=web"
+      - "traefik.http.routers.kibana.rule=Host(`kibana.localhost`)"
+      - "traefik.http.services.kibana.loadbalancer.server.port=5601"
+    networks:
+     - project
 
 
-
-  #  elastic:
-  #    build:
-  #      context: ./
-  #      dockerfile: config/docker/elastic.Dockerfile
-  #      args:
-  #        VERSION: ${VERSION_ELASTICSEARCH}
-  #    environment:
-  #      discovery.type: single-node
-  #      xpack.security.enabled: false
-  #      xpack.license.self_generated.type: basic
-  ##      xpack.security.enrollment.enabled: true
-  #      LS_JAVA_OPTS: -Xmx1g -Xms1g
-  #      ELASTIC_USERNAME: elastic
-  #      ELASTIC_PASSWORD: password
-  #    container_name: ${CONTAINER_ELASTICSEARCH}
-  #    restart: unless-stopped
-  #    ports:
-  #      - ${ELASTICSEARCH_PORT}:9200
-  #      - "9300:9300"
-  #    volumes:
-  #      - ./data/elastic/:/usr/share/elasticsearch/data
-  #      - ./logs/elastic/:/usr/share/elasticsearch/logs
-  #    networks:
-  #      - project
-  #    logging:
-  #      driver: none
+  elasticsearch:
+    build:
+      context: ./
+      dockerfile: config/docker/elastic.Dockerfile
+      args:
+        VERSION: ${ELASTIC_VERSION}
+    container_name: ${ELASTIC_CONTAINER}
+    environment:
+      discovery.type: single-node
+      LS_JAVA_OPTS: "-Xms512m -Xmx512m"
+    restart: unless-stopped
+    ports:
+      - ${ELASTIC_PORT}:9200
+    volumes:
+      - ./data/elastic/:/usr/share/elasticsearch/data
+      - ./logs/elastic/:/usr/share/elasticsearch/logs
+    networks:
+      - project
 
   #  certbot:
   #    build:
@@ -442,17 +438,6 @@ services:
     networks:
       - project
 
-  #  collector:
-  #    build:
-  #      context: ./
-  #      dockerfile: 'config/docker/otel.Dockerfile'
-  #    container_name: ${CONTAINER_COLLECTOR}
-  #    restart: unless-stopped
-  #    command: [ "--config=/etc/collector-config.yml" ]
-  #    volumes:
-  #      - ./config/otel/collector-config.yml:/etc/collector-config.yml
-  #    networks:
-  #      - project
 
   temporal:
     build:
