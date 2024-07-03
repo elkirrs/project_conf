@@ -1,4 +1,7 @@
 ARG VERSION
+ARG RR_VERSION
+
+FROM ghcr.io/roadrunner-server/roadrunner:$RR_VERSION AS roadrunner
 
 FROM php:$VERSION
 
@@ -17,6 +20,8 @@ RUN docker-php-ext-install bz2 ctype intl bcmath opcache calendar \
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 RUN mv $PHP_INI_DIR/php.ini-development $PHP_INI_DIR/php.ini
+
+COPY --from=roadrunner /usr/bin/rr /var/www/rr
 
 EXPOSE 9010
 ENTRYPOINT ["sh", "/var/scripts/chat.sh"]

@@ -8,7 +8,7 @@ fi
 
 chmod 777 -Rf /var/log
 
-if [ ! -f /var/www/sso/cmd/sso/go.mod ]; then
+if [ ! -f /var/www/sso/go.mod ]; then
   cd /var/www/sso
   go mod init app
 fi

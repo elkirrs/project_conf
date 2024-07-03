@@ -33,7 +33,10 @@ RUN apk add --update --no-cache zip curl unzip cmake make \
     && pecl install mongodb \
     && pecl install protobuf \
     && pecl install grpc \
-    && docker-php-ext-enable amqp xdebug redis protobuf grpc mongodb
+    && docker-php-ext-enable amqp xdebug redis protobuf grpc mongodb \
+    && pear channel-update pear.php.net \
+    && pecl install xhprof \
+    && docker-php-ext-enable xhprof
 
 # Install extensions
 RUN docker-php-ext-install -j$(nproc) gd \

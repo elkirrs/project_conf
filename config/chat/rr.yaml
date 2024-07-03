@@ -4,7 +4,7 @@ rpc:
   listen: 'tcp://127.0.0.1:6001'
 
 http:
-  address: '0.0.0.0:8080'
+  address: '0.0.0.0:8010'
   middleware:
     - gzip
     - static
@@ -14,6 +14,7 @@ http:
       - .php
       - .htaccess
   pool:
+    debug: true
     num_workers: 1
     supervisor:
       max_worker_memory: 100
@@ -22,15 +23,8 @@ server:
   command: 'php app.php'
   relay: pipes
 
-centrifuge:
-  proxy_address: tcp://127.0.0.1:10001
-  grpc_api_address: tcp://127.0.0.1:10000
+centrifugo:
+  proxy_address: tcp://0.0.0.0:10001
+  grpc_api_address: tcp://0.0.0.0:10000
   pool:
     num_workers: 3
-
-service:
-  centrifuge:
-    service_name_in_log: true
-    remain_after_exit: true
-    restart_sec: 1
-    command: "./centrifugo --config=config.json"

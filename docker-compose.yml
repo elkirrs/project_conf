@@ -158,8 +158,8 @@ services:
       PERSISTENCE_DRIVER: db
       DB_DRIVER: pgsql
       DB_DATABASE: ${BUGGREGATOR_DB_NAME}
-      DB_HOST: postgres
-      DB_PORT: POSTGRES_PORT
+      DB_HOST: ${BUGGREGATOR_DB_HOST}
+      DB_PORT: ${BUGGREGATOR_DB_PORT}
       DB_USERNAME: ${BUGGREGATOR_DB_USER}
       DB_PASSWORD: ${BUGGREGATOR_DB_PASS}
     ports:
@@ -384,6 +384,7 @@ services:
       dockerfile: config/docker/chat.Dockerfile
       args:
         VERSION: ${CHAT_PHP_VERSION}
+        RR_VERSION: ${RR_VERSION}
     container_name: ${CHAT_CONTAINER}
     restart: unless-stopped
     environment:
@@ -397,6 +398,7 @@ services:
       - ${CHAT_PATH}:/var/www
       - ./scripts/php:/var/scripts
       - ./config/php:/var/config/php
+      - ./config/chat:/var/config/rr
     networks:
       - project
 
