@@ -1,6 +1,6 @@
-ARG VERSION
+ARG VERSION=7.2-alpine
 
-FROM redis:$VERSION
+FROM redis:${VERSION}
 
 COPY /config/redis/redis.conf /etc/redis/redis.conf
 

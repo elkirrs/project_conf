@@ -1,0 +1,32 @@
+api:
+  dashboard: true
+  insecure: true
+
+entryPoints:
+  http:
+    address: ":80"
+  https:
+    address: ":443"
+
+tls:
+  certificates:
+    - certFile: "/etc/certificate/tls.crt"
+      keyFile: "/etc/certificate/tls.key"
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+  file:
+    directory: /etc/traefik/dynamic
+    watch: true
+
+log:
+  filePath: "/etc/log/traefik/log.log"
+#  format: json
+  level: DEBUG
+
+accesslog:
+  addInternals: true
+  #  format: json
+  filePath: "/etc/log/traefik/access.log"

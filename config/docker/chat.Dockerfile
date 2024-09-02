@@ -1,9 +1,9 @@
-ARG VERSION
-ARG RR_VERSION
+ARG VERSION=8.3-cli-alpine
+ARG RR_VERSION=2024.1.5
 
-FROM ghcr.io/roadrunner-server/roadrunner:$RR_VERSION AS roadrunner
+FROM ghcr.io/roadrunner-server/roadrunner:${RR_VERSION} AS roadrunner
 
-FROM php:$VERSION
+FROM php:${VERSION}
 
 # Set working directory
 WORKDIR /var/www

@@ -1,0 +1,16 @@
+http:
+  routers:
+    kibana:
+      entryPoints:
+        - http
+        - https
+      service: kibana-host
+      rule: Host(`kibana.localhost`)
+      tls: { }
+
+  services:
+    kibana-host:
+      loadBalancer:
+        servers:
+          - url: http://kibana:5601
+        passHostHeader: true

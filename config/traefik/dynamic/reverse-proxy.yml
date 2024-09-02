@@ -1,0 +1,16 @@
+http:
+  routers:
+    reverse-proxy:
+      entryPoints:
+        - http
+        - https
+      service: reverse-proxy-host
+      rule: Host(`traefik.localhost`)
+      tls: { }
+
+  services:
+    reverse-proxy-host:
+      loadBalancer:
+        servers:
+          - url: http://reverse-proxy:8080
+        passHostHeader: true

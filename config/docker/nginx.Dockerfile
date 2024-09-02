@@ -1,6 +1,6 @@
-ARG VERSION
+ARG VERSION=1.27-alpine
 
-FROM nginx:$VERSION
+FROM nginx:${VERSION}
 
 RUN apk --update add --no-cache nano openssl
 

@@ -1,5 +1,5 @@
-ARG VERSION
+ARG VERSION=7.17.22
 
-FROM elasticsearch:$VERSION
+FROM elasticsearch:${VERSION}
 
 EXPOSE 9200

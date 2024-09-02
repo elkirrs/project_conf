@@ -1,6 +1,6 @@
-ARG VERSION
+ARG VERSION=lts-alpine
 
-FROM node:$VERSION
+FROM node:${VERSION}
 
 # Set working directory
 WORKDIR /var/www

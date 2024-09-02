@@ -1,6 +1,6 @@
-ARG VERSION
+ARG VERSION=1.22-alpine
 
-FROM golang:$VERSION
+FROM golang:${VERSION}
 
 RUN apk --update add --no-cache nano curl protobuf build-base sqlite-dev libpq postgresql-dev
 

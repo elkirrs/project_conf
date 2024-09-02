@@ -1,3 +1,3 @@
-ARG VERSION
+ARG VERSION=latest
 
-FROM prom/prometheus:$VERSION
+FROM prom/prometheus:${VERSION}

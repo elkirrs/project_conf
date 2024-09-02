@@ -1,0 +1,16 @@
+http:
+  routers:
+    react:
+      entryPoints:
+        - http
+        - https
+      service: react-host
+      rule: Host(`react.localhost`)
+      tls: { }
+
+  services:
+    react-host:
+      loadBalancer:
+        servers:
+          - url: http://node:8080
+        passHostHeader: true

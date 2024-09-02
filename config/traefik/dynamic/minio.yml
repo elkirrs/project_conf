@@ -1,0 +1,16 @@
+http:
+  routers:
+    minio:
+      entryPoints:
+        - http
+        - https
+      service: minio-host
+      rule: Host(`minio.localhost`)
+      tls: { }
+
+  services:
+    minio-host:
+      loadBalancer:
+        servers:
+          - url: http://minio:9000
+        passHostHeader: true

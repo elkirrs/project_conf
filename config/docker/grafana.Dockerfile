@@ -1,3 +1,3 @@
-ARG VERSION
+ARG VERSION=latest
 
-FROM grafana/grafana:$VERSION
+FROM grafana/grafana:${VERSION}

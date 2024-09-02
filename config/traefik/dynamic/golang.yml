@@ -1,0 +1,30 @@
+http:
+  routers:
+    golang-api:
+      entryPoints:
+        - http
+        - https
+      service: golang-api-host
+      rule: Host(`golang.api.localhost`)
+      tls: { }
+
+    golang-grpc:
+      entryPoints:
+        - http
+        - https
+      service: golang-grpc-host
+      rule: Host(`golang.grpc.localhost`)
+      tls: { }
+
+  services:
+    golang-api-host:
+      loadBalancer:
+        servers:
+          - url: http://golang:5462
+        passHostHeader: true
+
+    golang-grpc-host:
+      loadBalancer:
+        servers:
+          - url: http://golang:5463
+        passHostHeader: true

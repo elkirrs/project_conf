@@ -1,0 +1,16 @@
+http:
+  routers:
+    grafana:
+      entryPoints:
+        - http
+        - https
+      service: grafana-host
+      rule: Host(`grafana.localhost`)
+      tls: { }
+
+  services:
+    grafana-host:
+      loadBalancer:
+        servers:
+          - url: http://grafana:3000
+        passHostHeader: true

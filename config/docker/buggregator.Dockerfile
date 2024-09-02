@@ -1,3 +1,3 @@
-ARG VERSION
+ARG VERSION=latest
 
-FROM ghcr.io/buggregator/server:$VERSION
+FROM ghcr.io/buggregator/server:${VERSION}

@@ -1,0 +1,16 @@
+http:
+  routers:
+    supervisor:
+      entryPoints:
+        - http
+        - https
+      service: supervisor-host
+      rule: Host(`supervisor.localhost`)
+      tls: { }
+
+  services:
+    supervisor-host:
+      loadBalancer:
+        servers:
+          - url: http://php:9001
+        passHostHeader: true

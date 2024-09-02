@@ -1,0 +1,16 @@
+http:
+  routers:
+    rabbit:
+      entryPoints:
+        - http
+        - https
+      service: rabbit-host
+      rule: Host(`rabbit.localhost`)
+      tls: { }
+
+  services:
+    rabbit-host:
+      loadBalancer:
+        servers:
+          - url: http://rabbitmq:15672
+        passHostHeader: true

@@ -1,0 +1,16 @@
+http:
+  routers:
+    swagger:
+      entryPoints:
+        - http
+        - https
+      service: swagger-host
+      rule: Host(`api.localhost`)
+      tls: { }
+
+  services:
+    swagger-host:
+      loadBalancer:
+        servers:
+          - url: http://swagger:8080
+        passHostHeader: true

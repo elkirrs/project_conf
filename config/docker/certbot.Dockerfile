@@ -1,3 +1,3 @@
 ARG VERSION
 
-FROM certbot/certbot:$VERSION
+FROM certbot/certbot:${VERSION}

@@ -1,5 +1,5 @@
-ARG VERSION
+ARG VERSION=16.0-alpine
 
-FROM postgres:$VERSION
+FROM postgres:${VERSION}
 
 EXPOSE 5432

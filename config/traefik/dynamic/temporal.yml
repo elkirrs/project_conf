@@ -1,0 +1,16 @@
+http:
+  routers:
+    temporal:
+      entryPoints:
+        - http
+        - https
+      service: temporal-host
+      rule: Host(`temporal.localhost`)
+      tls: { }
+
+  services:
+    temporal-host:
+      loadBalancer:
+        servers:
+          - url: http://temporal-ui:8080
+        passHostHeader: true

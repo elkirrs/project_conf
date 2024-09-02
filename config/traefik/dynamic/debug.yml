@@ -1,0 +1,16 @@
+http:
+  routers:
+    debug:
+      entryPoints:
+        - http
+        - https
+      service: debug-host
+      rule: Host(`debug.localhost`)
+      tls: { }
+
+  services:
+    debug-host:
+      loadBalancer:
+        servers:
+          - url: http://buggregator:8000
+        passHostHeader: true

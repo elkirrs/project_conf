@@ -1,3 +1,3 @@
-ARG VERSION
+ARG VERSION=latest
 
-FROM traefik:$VERSION
+FROM traefik:${VERSION}

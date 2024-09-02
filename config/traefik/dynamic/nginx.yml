@@ -1,0 +1,30 @@
+http:
+  routers:
+    nginx-php:
+      entryPoints:
+        - http
+        - https
+      service: nginx-php-host
+      rule: Host(`backend.php.localhost`)
+      tls: { }
+
+    nginx-js:
+      entryPoints:
+        - http
+        - https
+      service: nginx-js-host
+      rule: Host(`web.react.localhost`)
+      tls: { }
+
+  services:
+    nginx-php-host:
+      loadBalancer:
+        servers:
+          - url: http://nginx:80
+        passHostHeader: true
+
+    nginx-js-host:
+      loadBalancer:
+        servers:
+          - url: http://nginx:3000
+        passHostHeader: true

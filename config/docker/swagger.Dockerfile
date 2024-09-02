@@ -1,5 +1,5 @@
-ARG VERSION
+ARG VERSION=v5.12.0
 
-FROM swaggerapi/swagger-ui:$VERSION
+FROM swaggerapi/swagger-ui:${VERSION}
 
 EXPOSE 8088
