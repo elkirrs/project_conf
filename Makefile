@@ -30,28 +30,28 @@ composer_du: # Composer dump autoload
 
 # Work in containers
 .PHONY: up
-up: #start docker containers @docker-compose up -d
-	@docker-compose up -d
+up: #start docker containers @docker compose up -d
+	@docker compose up -d
 
 .PHONY: build
-build: #build docker container @docker-compose build
-	@docker-compose build
+build: #build docker container @docker compose build
+	@docker compose build
 
 .PHONY: down
-down: #stop and remove docker containers @docker-compose down
-	@docker-compose down
+down: #stop and remove docker containers @docker compose down
+	@docker compose down
 
 .PHONY: start
-start: #start docker containers @docker-compose start
-	@docker-compose start
+start: #start docker containers @docker compose start
+	@docker compose start
 
 .PHONY: stop
-stop: #stop docker containers @docker-compose stop
-	@docker-compose stop
+stop: #stop docker containers @docker compose stop
+	@docker compose stop
 
 .PHONY: restart
-restart: #restart docker containers @docker-compose restart
-	@docker-compose restart
+restart: #restart docker containers @docker compose restart
+	@docker compose restart
 #-----------------------------------------------------------------------------------------------------------------------
 
 
@@ -208,12 +208,12 @@ dump: #Dump DB
 .PHONY: help
 help: #help to command from makefile
 	@echo WORK IN CONTAINER \\n\\r \
- 	  up: =\> start docker containers @docker-compose up -d \\n\\r \
-	  build: =\> build docker container @docker-compose build \\n\\r \
-	  down: =\> stop and remove docker containers @docker-compose down \\n\\r \
-	  start: =\> start docker containers @docker-compose start \\n\\r \
-	  stop: =\> stop docker containers @docker-compose stop \\n\\r \
-	  restart: =\> restart docker containers @docker-compose restart \\n\\r
+ 	  up: =\> start docker containers @docker compose up -d \\n\\r \
+	  build: =\> build docker container @docker compose build \\n\\r \
+	  down: =\> stop and remove docker containers @docker compose down \\n\\r \
+	  start: =\> start docker containers @docker compose start \\n\\r \
+	  stop: =\> stop docker containers @docker compose stop \\n\\r \
+	  restart: =\> restart docker containers @docker compose restart \\n\\r
 
 	@echo INSTALL APP \\n\\r \
 	  laravel_i: =\> Create new Laravel project. Last version "(container PHP)" \\n\\r \
