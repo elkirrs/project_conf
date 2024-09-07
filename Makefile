@@ -154,6 +154,12 @@ kibana_code: #Generate elastic token
 	@docker exec -it $(KIBANA_CONTAINER) bin/kibana-verification-code
 
 
+.PHONY: gen_cert #Generate certificate for traefik
+gen_cert:
+	@if [ ! -f "$(TRAEFIK_CERT_PATH)/tls.key"]; then \
+		openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout "$(TRAEFIK_CERT_PATH)/tls.key" -out "$(TRAEFIK_CERT_PATH)/tls.crt" -subj "/CN=$(TRAEFIK_DOMAIN)"; \
+	fi
+
 .PHONY: site_disable
 site_disable: #Site disable
 	@if [ -z ${name} ]; then \

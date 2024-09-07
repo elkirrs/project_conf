@@ -45,10 +45,10 @@ services:
     networks:
       - project
 
-  php:
+  php-fpm:
     build:
       context: ./
-      dockerfile: config/docker/php.Dockerfile
+      dockerfile: config/docker/php-fpm.Dockerfile
       args:
         VERSION: ${PHP_VERSION}
     container_name: ${PHP_CONTAINER}
@@ -66,7 +66,7 @@ services:
       - ./logs/supervisor:/var/log/supervisor
       - ./scripts/php:/var/scripts
       - ./config/php:/var/config/php
-      - ./proto:/var/proto
+      - ${PROTO_PATH}:/var/proto
     networks:
       - project
 
@@ -155,7 +155,7 @@ services:
       - ${GOLANG_PATH_PROJECT}:/var/www
       - ./logs/golang:/var/log
       - ./scripts/go:/var/scripts
-      - ./proto:/var/proto
+      - ${PROTO_PATH}:/var/proto
     networks:
       - project
 
@@ -323,10 +323,10 @@ services:
   #    networks:
   #      - project
 
-  chat:
+  php-cli:
     build:
       context: ./
-      dockerfile: config/docker/chat.Dockerfile
+      dockerfile: config/docker/php-cli.Dockerfile
       args:
         VERSION: ${CHAT_PHP_VERSION}
         RR_VERSION: ${RR_VERSION}
