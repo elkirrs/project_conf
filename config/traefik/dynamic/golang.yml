@@ -6,7 +6,6 @@ http:
         - https
       service: golang-api-host
       rule: Host(`golang.api.localhost`)
-      tls: { }
 
     golang-grpc:
       entryPoints:
@@ -14,7 +13,6 @@ http:
         - https
       service: golang-grpc-host
       rule: Host(`golang.grpc.localhost`)
-      tls: { }
 
   services:
     golang-api-host:

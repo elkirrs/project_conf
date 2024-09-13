@@ -5,12 +5,11 @@ http:
         - http
         - https
       service: react-host
-      rule: Host(`react.localhost`)
-      tls: { }
+      rule: Host(`dev.web.js.localhost`)
 
   services:
     react-host:
       loadBalancer:
         servers:
-          - url: http://node:8080
+          - url: http://node:3000
         passHostHeader: true

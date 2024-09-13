@@ -6,7 +6,6 @@ http:
         - https
       service: grafana-host
       rule: Host(`grafana.localhost`)
-      tls: { }
 
   services:
     grafana-host:

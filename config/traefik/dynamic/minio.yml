@@ -6,7 +6,6 @@ http:
         - https
       service: minio-host
       rule: Host(`minio.localhost`)
-      tls: { }
 
   services:
     minio-host:

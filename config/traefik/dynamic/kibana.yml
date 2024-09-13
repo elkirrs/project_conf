@@ -6,7 +6,6 @@ http:
         - https
       service: kibana-host
       rule: Host(`kibana.localhost`)
-      tls: { }
 
   services:
     kibana-host:

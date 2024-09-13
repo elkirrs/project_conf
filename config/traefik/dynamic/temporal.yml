@@ -6,7 +6,6 @@ http:
         - https
       service: temporal-host
       rule: Host(`temporal.localhost`)
-      tls: { }
 
   services:
     temporal-host:

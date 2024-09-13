@@ -1,4 +1,5 @@
 ARG VERSION=8.3-fpm-alpine
+ARG RR_VERSION=2024.1.5
 
 FROM alpine:latest AS grpc-php-plugin
 
@@ -32,6 +33,8 @@ RUN apk add --update --no-cache zip unzip zlib-dev cmake make  \
     && pecl install mongodb \
     && pecl install xhprof
 
+FROM ghcr.io/roadrunner-server/roadrunner:${RR_VERSION} AS roadrunner
+
 FROM php:${VERSION} AS backend
 
 # Set working directory
@@ -39,10 +42,10 @@ WORKDIR /var/www/php
 
 # Install dependencies
 RUN apk add --update --no-cache zip curl unzip cmake make \
-    libzip-dev bzip2-dev \
+    libzip-dev bzip2-dev icu-dev libxml2-dev \
     oniguruma-dev libmcrypt-dev readline-dev $PHPIZE_DEPS \
     g++ supervisor nano \
-    libpq postgresql-dev \
+    libpq postgresql-dev libpq-dev\
     rabbitmq-c rabbitmq-c-dev \
     protobuf-dev grpc \
     libstdc++ musl php-common linux-headers \
@@ -52,8 +55,8 @@ RUN apk add --update --no-cache zip curl unzip cmake make \
 # Install extensions
 RUN docker-php-ext-install -j$(nproc) gd \
     bz2 ctype intl bcmath opcache calendar \
-    mbstring pgsql pdo_pgsql zip exif \
-    pcntl sockets
+    mbstring xml exif pgsql pdo_pgsql zip exif \
+    pcntl sockets pdo
 
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -62,6 +65,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 COPY --from=grpc-php-plugin /grpc_php_plugin /usr/grpc/grpc_php_plugin
 COPY --from=grpc-php-ext /usr/local/lib/php/extensions/ /usr/local/lib/php/extensions/
 COPY --from=pecl-php-ext /usr/local/lib/php/extensions/ /usr/local/lib/php/extensions/
+COPY --from=roadrunner /usr/bin/rr /var/www/rr/rr
 
 RUN docker-php-ext-enable amqp xdebug redis protobuf grpc mongodb xhprof
 

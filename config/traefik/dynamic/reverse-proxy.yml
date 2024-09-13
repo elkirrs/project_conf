@@ -6,7 +6,6 @@ http:
         - https
       service: reverse-proxy-host
       rule: Host(`traefik.localhost`)
-      tls: { }
 
   services:
     reverse-proxy-host:

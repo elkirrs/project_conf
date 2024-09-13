@@ -5,8 +5,7 @@ http:
         - http
         - https
       service: swagger-host
-      rule: Host(`api.localhost`)
-      tls: { }
+      rule: Host(`docs.api.localhost`)
 
   services:
     swagger-host:

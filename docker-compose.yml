@@ -15,9 +15,9 @@ services:
       - ${TRAEFIC_PORT_HTTPS:-443}:443
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./config/traefik:/etc/traefik
-      - ./ssl:/etc/certificate
-      - ./logs/traefik:/etc/log/traefik
+      - ${TRAEFIK_CONGIG_PATH}:/etc/traefik
+      - ${SSL_PATH}:/etc/certificate
+      - ${TRAEFIK_LOG_PATH}:/etc/log/traefik
     networks:
       - project
 
@@ -32,25 +32,26 @@ services:
     environment:
       TZ: ${TZ}
     volumes:
-      - ./config/nginx/sites-available:/etc/nginx/sites-available
-      - ./config/nginx/conf.d:/etc/nginx/conf.d
+      - ${NGINX_CONFIG_SITE_AVLBLE}:/etc/nginx/sites-available
+      - ${NGINX_CONFIG_D}:/etc/nginx/conf.d
       - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ${PHP_WEB_PATH_PROJECT}:/var/www/php
-      - ${NODE_PATH_PROJECT}:/var/www/js
-      - ./logs/nginx:/var/log/nginx
-      - ./ssl:/etc/nginx/listen
+      - ${PHP_WEB_PATH}:/var/www/backend
+      - ${NODE_PATH_WEB}:/var/www/web
+      - ${NGINX_LOG_PATH}:/var/log/nginx
+      - ${SSL_PATH}:/etc/nginx/listen
       #      - ./certbot:/var/www/certbot
       #      - ./certbot/conf:/etc/nginx/listen
-      - ./scripts/nginx:/var/scripts
+      - ${NGINX_SCRIPT_PATH}:/var/scripts
     networks:
       - project
 
-  php-fpm:
+  php:
     build:
       context: ./
-      dockerfile: config/docker/php-fpm.Dockerfile
+      dockerfile: config/docker/php.Dockerfile
       args:
         VERSION: ${PHP_VERSION}
+        RR_VERSION: ${RR_VERSION}
     container_name: ${PHP_CONTAINER}
     restart: unless-stopped
     environment:
@@ -59,14 +60,21 @@ services:
       - "host.docker.internal:host-gateway"
     ports:
       - ${PHP_PORT}:9000
+      - "8010:8010"
+      - "6001:6001"
+      - "10000:10000"
+      - "10001:10001"
+      - "9010:9010"
     volumes:
-      - ${PHP_WEB_PATH_PROJECT}:/var/www/php
+      - ${PHP_WEB_PATH}:/var/www/backend
+      - ${PHP_CHAT_PATH}:/var/www/chat
+      - ${PROTO_PATH}:/var/proto
       - ./config/supervisor:/var/config/supervisor
       - ./config/supervisor/conf.d:/etc/supervisor/conf.d
-      - ./logs/supervisor:/var/log/supervisor
-      - ./scripts/php:/var/scripts
-      - ./config/php:/var/config/php
-      - ${PROTO_PATH}:/var/proto
+      - ${PHP_CONFIG_PATH}:/var/config/php
+      - ${PHP_CONFIG_RR_PATH}:/var/config/rr
+      - ${PHP_SUPERVISOR_LOG_PATH}:/var/log/supervisor
+      - ${PHP_SCRIPTS_PATH}:/var/scripts
     networks:
       - project
 
@@ -86,7 +94,7 @@ services:
     ports:
       - ${POSTGRES_PORT}:5432
     volumes:
-      - ./data/postgres:/var/lib/postgresql/data
+      - ${POSTGRES_DATA}:/var/lib/postgresql/data
     networks:
       - project
 
@@ -108,8 +116,8 @@ services:
     ports:
       - ${RMQ_PORT_CONNECT}:5672
     volumes:
-      - ./logs/rabbitmq:/var/log/rabbitmq
-      - ./data/rabbitmq:/var/lib/rabbitmq
+      - ${RMQ_LOG_PATH}:/var/log/rabbitmq
+      - ${RMQ_DATA}:/var/lib/rabbitmq
     #- ./config/rabbitmq/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
     networks:
       - project
@@ -153,9 +161,9 @@ services:
       - ${GOLANG_PORT_METRICS}:5464
     volumes:
       - ${GOLANG_PATH_PROJECT}:/var/www
-      - ./logs/golang:/var/log
-      - ./scripts/go:/var/scripts
       - ${PROTO_PATH}:/var/proto
+      - ${GOLANG_LOG_PATH}:/var/log
+      - ${GOLANG_SCRIPT_PATH}:/var/scripts
     networks:
       - project
 
@@ -172,9 +180,9 @@ services:
     ports:
       - ${REDIS_PORT}:6379
     volumes:
-      - ./config/redis:/usr/local/etc/redis
-      - ./logs/redis:/var/log
-      - ./data/redis:/data
+      - ${REDIS_CONFIG}:/usr/local/etc/redis
+      - ${REDIS_LOG}:/var/log
+      - ${REDIS_DATA}:/data
     networks:
       - project
 
@@ -192,9 +200,9 @@ services:
       - ${NODE_PORT_PREVIEW}:4173
     restart: unless-stopped
     volumes:
-      - ${NODE_PATH_PROJECT}:/var/www
-      - ./scripts/node:/var/scripts
-      - ./logs/node:/root/.npm/_logs
+      - ${NODE_PATH_WEB}:/var/www/web
+      - ${NODE_SCRIPT}:/var/scripts
+      - ${NODE_LOG}:/root/.npm/_logs
     networks:
       - project
 
@@ -211,9 +219,9 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD}
       MONGO_INITDB_DATABASE: ${MONGODB_NAME}
     volumes:
-      - ./data/mongodb:/data/db
-      - ./scripts/mongodb:/var/scripts
-      - ./logs/mongodb:/var/log/mongodb
+      - ${MONGODB_DATA}:/data/db
+      - ${MONGODB_SCRIPT}:/var/scripts
+      - ${MONGODB_LOG}:/var/log/mongodb
     ports:
       - ${MONGODB_PORT}:27017
     networks:
@@ -230,7 +238,7 @@ services:
     ports:
       - ${PROMETHEUS_PORT}:9090
     volumes:
-      - ./config/prometheus:/etc/prometheus
+      - ${PROMETHEUS_CONFIG}:/etc/prometheus
     networks:
       - project
 
@@ -243,10 +251,10 @@ services:
     container_name: ${GRAFANA_CONTAINER}
     restart: unless-stopped
     environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASS}
     volumes:
-      - ./data/grafana:/var/lib/grafana
+      - ${GRAFANA_DATA}:/var/lib/grafana
     networks:
       - project
 
@@ -268,10 +276,10 @@ services:
       - "9600:9600"
       - "5044:5044"
     volumes:
-      - ./config/logstash/config/:/var/config/logstash
-      - ./scripts/logstash:/var/scripts
-      - ./logs/logstash/:/usr/share/logstash/logs/
-      - ./config/logstash/pipeline/:/usr/share/logstash/pipeline/
+      - ${LOGSTASH_CONFIG}:/var/config/logstash
+      - ${LOGSTASH_SCRIPT}:/var/scripts
+      - ${LOGSTASH_LOG}:/usr/share/logstash/logs
+      - ${LOGSTASH_PIPLINE}:/usr/share/logstash/pipeline/
     networks:
       - project
 
@@ -284,7 +292,7 @@ services:
     container_name: ${KIBANA_CONTAINER}
     restart: unless-stopped
     volumes:
-      - ./data/kibana:/usr/share/kibana/data
+      - ${KIBANA_DATA}:/usr/share/kibana/data
     networks:
      - project
 
@@ -303,8 +311,8 @@ services:
     ports:
       - ${ELASTIC_PORT}:9200
     volumes:
-      - ./data/elastic/:/usr/share/elasticsearch/data
-      - ./logs/elastic/:/usr/share/elasticsearch/logs
+      - ${ELASTIC_DATA}:/usr/share/elasticsearch/data
+      - ${ELASTIC_LOG}:/usr/share/elasticsearch/logs
     networks:
       - project
 
@@ -323,30 +331,6 @@ services:
   #    networks:
   #      - project
 
-  php-cli:
-    build:
-      context: ./
-      dockerfile: config/docker/php-cli.Dockerfile
-      args:
-        VERSION: ${CHAT_PHP_VERSION}
-        RR_VERSION: ${RR_VERSION}
-    container_name: ${CHAT_CONTAINER}
-    restart: unless-stopped
-    environment:
-      TZ: ${TZ}
-    ports:
-      - "8010:8010"
-      - "6001:6001"
-      - "10000:10000"
-      - "10001:10001"
-    volumes:
-      - ${CHAT_PATH}:/var/www
-      - ./scripts/php:/var/scripts
-      - ./config/php:/var/config/php
-      - ./config/chat:/var/config/rr
-    networks:
-      - project
-
   centrifugo:
     build:
       context: ./
@@ -354,8 +338,8 @@ services:
       args:
         VERSION: ${CENTRIFUGO_VERSION}
     volumes:
-      - ./config/centrifugo:/centrifugo
-      - ./scripts/centrifugo:/var/scripts
+      - ${CENTRIFUGO_CONFIG}:/centrifugo
+      - ${CENTRIFUGO_SCRIPT}:/var/scripts
     container_name: ${CENTRIFUGO_CONTAINER}
     restart: unless-stopped
     environment:
@@ -376,7 +360,7 @@ services:
     environment:
       SWAGGER_JSON: /swagger/swagger.json
     volumes:
-      - ./swagger:/swagger
+      - ${SWAGGER_PATH}:/swagger
     networks:
       - project
 
@@ -396,7 +380,7 @@ services:
       POSTGRES_SEEDS: ${TEMPORAL_DB_SEEDS}
       DYNAMIC_CONFIG_FILE_PATH: config/dynamicconfig/development-sql.yml
     volumes:
-      - ./config/temporal:/etc/temporal/config/dynamicconfig
+      - ${TEMPORAL_CONFIG}:/etc/temporal/config/dynamicconfig
     restart: unless-stopped
     networks:
       - project
@@ -430,7 +414,7 @@ services:
     ports:
       - ${MINIO_PORT}:9001
     volumes:
-      - ./data/minio:/data
+      - ${MINIO_DATA}:/data
     restart: unless-stopped
     networks:
       - project

@@ -6,7 +6,6 @@ http:
         - https
       service: debug-host
       rule: Host(`debug.localhost`)
-      tls: { }
 
   services:
     debug-host:

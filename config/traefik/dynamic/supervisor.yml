@@ -6,7 +6,6 @@ http:
         - https
       service: supervisor-host
       rule: Host(`supervisor.localhost`)
-      tls: { }
 
   services:
     supervisor-host:

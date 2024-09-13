@@ -6,7 +6,6 @@ http:
         - https
       service: rabbit-host
       rule: Host(`rabbit.localhost`)
-      tls: { }
 
   services:
     rabbit-host:
