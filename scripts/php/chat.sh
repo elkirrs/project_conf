@@ -13,7 +13,7 @@ fi
 
 composer self-update
 
-if [ -f /var/www/composer.json ]; then
+if [ -f /var/www/chat/composer.json ]; then
   composer du
 fi
 

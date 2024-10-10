@@ -160,7 +160,7 @@ services:
       - ${GOLANG_PORT_GRPC}:5463
       - ${GOLANG_PORT_METRICS}:5464
     volumes:
-      - ${GOLANG_PATH_PROJECT}:/var/www
+      - ${GOLANG_PATH_PROJECT}:/var/www/sso
       - ${PROTO_PATH}:/var/proto
       - ${GOLANG_LOG_PATH}:/var/log
       - ${GOLANG_SCRIPT_PATH}:/var/scripts

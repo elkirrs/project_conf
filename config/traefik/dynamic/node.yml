@@ -11,5 +11,5 @@ http:
     react-host:
       loadBalancer:
         servers:
-          - url: http://node:3000
+          - url: http://node:5173
         passHostHeader: true
