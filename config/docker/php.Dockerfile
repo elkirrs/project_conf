@@ -50,16 +50,12 @@ RUN apk add --update --no-cache zip curl unzip cmake make \
     protobuf-dev grpc \
     libstdc++ musl php-common linux-headers \
     libgd libpng libjpeg-turbo freetype-dev libpng-dev jpeg-dev libjpeg libjpeg-turbo-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg --enable-gd
-
-# Install extensions
-RUN docker-php-ext-install -j$(nproc) gd \
-    bz2 ctype intl bcmath opcache calendar \
-    mbstring xml exif pgsql pdo_pgsql zip exif \
-    pcntl sockets pdo
-
-# Install composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --enable-gd \
+    # Install extensions
+    && docker-php-ext-install -j$(nproc) gd bz2 ctype intl bcmath opcache calendar \
+    mbstring xml exif pgsql pdo_pgsql zip exif pcntl sockets pdo \
+    # Clear cache
+    && rm -rf /var/cache/apk/*
 
 # Copy grpc plugin
 COPY --from=grpc-php-plugin /grpc_php_plugin /usr/grpc/grpc_php_plugin
@@ -69,10 +65,9 @@ COPY --from=roadrunner /usr/bin/rr /var/www/rr/rr
 
 RUN docker-php-ext-enable amqp xdebug redis protobuf grpc mongodb xhprof
 
-# Clear cache
-RUN rm -rf /var/lib/apk/* && rm -rf /var/cache/apk/*
-
-RUN mv $PHP_INI_DIR/php.ini-development $PHP_INI_DIR/php.ini
+RUN mv $PHP_INI_DIR/php.ini-development $PHP_INI_DIR/php.ini \
+    # Install composer
+    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 EXPOSE 9000
 ENTRYPOINT ["sh", "/var/scripts/php.sh"]
