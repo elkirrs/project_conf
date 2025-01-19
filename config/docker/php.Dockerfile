@@ -1,4 +1,4 @@
-ARG VERSION=8.3-fpm-alpine
+ARG VERSION=8.4-fpm-alpine
 ARG RR_VERSION=2024.1.5
 
 FROM alpine:latest AS grpc-php-plugin
@@ -38,7 +38,7 @@ FROM ghcr.io/roadrunner-server/roadrunner:${RR_VERSION} AS roadrunner
 FROM php:${VERSION} AS backend
 
 # Set working directory
-WORKDIR /var/www/php
+WORKDIR /var/www
 
 # Install dependencies
 RUN apk add --update --no-cache zip curl unzip cmake make \
@@ -69,6 +69,6 @@ RUN mv $PHP_INI_DIR/php.ini-development $PHP_INI_DIR/php.ini \
     # Install composer
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-EXPOSE 9000
-ENTRYPOINT ["sh", "/var/scripts/php.sh"]
+EXPOSE 9000 9100
+ENTRYPOINT ["sh", "/var/scripts/init.sh"]
 CMD ["tail", "-f", "/dev/null"]

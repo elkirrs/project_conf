@@ -8,9 +8,6 @@ http:
       rule: Host(`golang.api.localhost`)
 
     golang-grpc:
-      entryPoints:
-        - http
-        - https
       service: golang-grpc-host
       rule: Host(`golang.grpc.localhost`)
 
@@ -24,5 +21,4 @@ http:
     golang-grpc-host:
       loadBalancer:
         servers:
-          - url: http://golang:5463
-        passHostHeader: true
+          - url: h2c://golang:5463

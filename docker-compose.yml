@@ -13,6 +13,7 @@ services:
     ports:
       - ${TRAEFIC_PORT_HTTP:-80}:80
       - ${TRAEFIC_PORT_HTTPS:-443}:443
+      - ${TRAEFIC_PORT_TCP:-50051}:50051
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ${TRAEFIK_CONGIG_PATH}:/etc/traefik
@@ -37,6 +38,7 @@ services:
       - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
       - ${PHP_WEB_PATH}:/var/www/backend
       - ${NODE_PATH_WEB}:/var/www/web
+      - ${PHP_REGISTER_PATH}:/var/www/register
       - ${NGINX_LOG_PATH}:/var/log/nginx
       - ${SSL_PATH}:/etc/nginx/listen
       #      - ./certbot:/var/www/certbot
@@ -68,6 +70,7 @@ services:
     volumes:
       - ${PHP_WEB_PATH}:/var/www/backend
       - ${PHP_CHAT_PATH}:/var/www/chat
+      - ${PHP_REGISTER_PATH}:/var/www/register
       - ${PROTO_PATH}:/var/proto
       - ./config/supervisor:/var/config/supervisor
       - ./config/supervisor/conf.d:/etc/supervisor/conf.d

@@ -5,8 +5,9 @@ data
 .DS_Store
 dump
 ssl
-apps/
+apps
 !apps/.gitignore
 !data/.gitignore
 !ssl/.gitignore
 !logs/.gitignore
+swagger

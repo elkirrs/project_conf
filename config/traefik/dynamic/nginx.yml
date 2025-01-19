@@ -1,10 +1,10 @@
 http:
   routers:
-    nginx-php:
+    nginx-backend:
       entryPoints:
         - http
         - https
-      service: nginx-php-host
+      service: nginx-backend-host
       rule: Host(`backend.php.localhost`)
 
     nginx-js:
@@ -14,8 +14,15 @@ http:
       service: nginx-js-host
       rule: Host(`web.js.localhost`)
 
+    nginx-register:
+      entryPoints:
+        - http
+        - https
+      service: nginx-register-host
+      rule: Host(`register.php.localhost`)
+
   services:
-    nginx-php-host:
+    nginx-backend-host:
       loadBalancer:
         servers:
           - url: http://nginx:80
@@ -25,4 +32,10 @@ http:
       loadBalancer:
         servers:
           - url: http://nginx:3000
+        passHostHeader: true
+
+    nginx-register-host:
+      loadBalancer:
+        servers:
+          - url: http://nginx:81
         passHostHeader: true
