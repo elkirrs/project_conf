@@ -33,7 +33,7 @@ services:
     environment:
       TZ: ${TZ}
     volumes:
-      - ${NGINX_CONFIG_SITE_AVLBLE}:/etc/nginx/sites-available
+      - ${NGINX_CONFIG_SITE_AVAILABLE}:/etc/nginx/sites-available
       - ${NGINX_CONFIG_D}:/etc/nginx/conf.d
       - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
       - ${PHP_WEB_PATH}:/var/www/backend
